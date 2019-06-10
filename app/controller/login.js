@@ -37,11 +37,19 @@ class LoginController extends Controller {
   // 登录
   async signin () {
     const { ctx } = this;
+    const account = ctx.request.body.account;
+    const pwd = ctx.request.body.pwd;
+    const vcode = ctx.request.body.vcode;
 
     ctx.body = {
       code: 200,
       msg: '',
-      result: '123'
+      result: {
+        account: account,
+        pwd: pwd,
+        vcode: vcode,
+        captcha: ctx.session.captcha
+      }
     };
   }
 }
