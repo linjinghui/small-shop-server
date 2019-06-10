@@ -1,0 +1,20 @@
+/**
+* 用户表
+*/
+
+{
+    // 头像
+    "avatar": null,
+    // 手机号
+    "mobile": null,
+    // 姓名
+    "name": null,
+    // 微信ID
+    "open_id": null,
+    // 帐号
+    "account": null,
+    // 密码
+    "pwd": null,
+    // 帐号类型 1: 商家 2: 买家
+    "type" : 1
+}

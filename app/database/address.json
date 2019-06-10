@@ -1,0 +1,16 @@
+/**
+* 配送地址表
+*/
+
+{
+  // 收货人姓名
+  "name": null,
+  // 收货人电话
+  "mobile": null,
+  // 收获地址
+  "address": null,
+  // 收获门牌地址
+  "door_address": null,
+  // 拥有者ID
+  "person_id": null
+}

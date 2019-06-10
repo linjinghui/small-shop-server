@@ -1,0 +1,25 @@
+/**
+* 商品表
+*/
+
+{
+  "": null,
+  // 产品名称
+  "name": null,
+  // 产品头像
+  "avatar": null,
+  // 产品轮播图 | 数组 | 图片
+  "cover": null,
+  // 产品描述
+  "desc": null,
+  // 产品规格 | 数组 | rebate:折扣 0-10 9.5即95折 | {name:"规格名称",price:"售价","rebate": 10, "stock": 0}
+  "specs": null,
+  // 产品产地
+  "origin_place": null,
+  // 产品标签 | 数组 | {text:"标签名称",bcolor:"red"}
+  "label": null,
+  // 产品详情 | 数组 | 图片
+  "detail": null,
+  // 拥有者ID
+  "person_id": null
+}

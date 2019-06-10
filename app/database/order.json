@@ -1,0 +1,34 @@
+/**
+* 订单表
+*/
+
+{
+  // 订单ID
+  "order_id": null,
+  // 商品ID
+  "good_id": null,
+  // 商品数量
+  "count": null,
+  // 商品重量
+  "weight": null,
+  // 商品总价
+  "money": null,
+  // 下单时间
+  "order_time": null,
+  // 订单确认时间
+  "confirm_time": null,
+  // 备货时间
+  "prepare_time": null,
+  // 配送时间
+  "distribution_time": null,
+  // 完成时间
+  "finish_time": null,
+  // 配送地址ID
+  "address_id": null,
+  // 下单人ID
+  "person_id": null,
+  // 订单状态 1：待接单，2：备货中，3：分拣中，4：配送中，5：已完成
+  "status": 1,
+  // 备注
+  "remark": null
+}
