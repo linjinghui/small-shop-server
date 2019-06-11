@@ -25,6 +25,11 @@ module.exports = appInfo => {
       '.tpl': 'nunjucks',
     },
   };
+
+  config.mongoose = {
+    url: 'mongodb://127.0.0.1:27017/smallshop',
+    options: {},
+  };
   
   // add your user config here
   const userConfig = {
@@ -32,15 +37,6 @@ module.exports = appInfo => {
     listen: {
       port: 80,
       hostname: '127.0.0.1',
-    },
-    mongodb: {
-      app: true,
-      agent: false,
-      username: '',
-      password: '',
-      hosts: '127.0.0.1:27017',
-      db: 'smallshop',
-      query: ''
     }
   };
 

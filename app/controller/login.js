@@ -3,6 +3,7 @@
 const Parameter = require('parameter');
 const Controller = require('egg').Controller;
 const svgCaptcha = require('svg-captcha');
+const util = require('../util/util');
 const Check = new Parameter();
 
 class LoginController extends Controller {
@@ -46,7 +47,7 @@ class LoginController extends Controller {
   // 注册
   async regist () {
     const { ctx } = this;
-    const resBody = {code: 200, msg: '', result: ''};
+    const resBody = util.resdata(200);
     const account = ctx.request.body.account;
     const pwd = ctx.request.body.pwd;
     const vcode = ctx.request.body.vcode;
@@ -59,16 +60,16 @@ class LoginController extends Controller {
 
     if (errors == undefined) {
       if (vcode !== registCaptcha) {
-        resBody.code = 400;
-        resBody.msg = '验证码不正确'; 
+        resBody = util.resdata(200, '验证码不正确');
       } else {
-        const ret = ctx.service.person.save(ctx.request.body);
-        console.log(ret);
+        const ret = await ctx.service.person.createStore(ctx.request.body);
+        if (!ret) {
+          resBody = util.resdata(503, '注册用户失败');
+        }
       }
     } else {
       // 入参基础校验异常
-      resBody.code = 400;
-      resBody.msg = '请求参数异常：' + errors[0].field + errors[0].message;
+      resBody = util.resdata(400, '请求参数异常：' + errors[0].field + errors[0].message);
     }
 
     // 响应
