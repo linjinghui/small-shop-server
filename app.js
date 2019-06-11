@@ -6,14 +6,15 @@ module.exports = app => {
     // report error
   });
   app.on('request', ctx => {
-    // log receive request
-    console.log('=======request======' + app.config.env);
     // app.config.env 环境变量 ，可以通过cmd: EGG_SERVER_ENV=xxx npm run dev 传递
+    const cquery = ctx.query;
+    const cbody = ctx.request.body;
+    // 打印请求内容
+    ctx.logger.info(JSON.stringify(Object.assign(cquery, cbody)));
   });
   app.on('response', ctx => {
     // ctx.starttime is set by framework
     const used = Date.now() - ctx.starttime;
-    // log total cost
-    console.log('=======response======' + used);
+    ctx.logger.info();
   });
 };

@@ -10,6 +10,8 @@ module.exports = app => {
 
   // 获取验证码
   router.get('/captcha', controller.login.captcha);
+  // 注册
+  router.post('/regist', controller.login.regist);
   // 登录
   router.post('/login', controller.login.signin);
 };

@@ -17,6 +17,8 @@
     "egg-bin": "^4.11.0",
     "egg-ci": "^1.11.0",
     "egg-mock": "^3.21.0",
+    "egg-mongodb": "^1.1.1",
+    "egg-validate": "^2.0.2",
     "eslint": "^5.13.0",
     "eslint-config-egg": "^7.1.0",
     "svg-captcha": "^1.4.0",
