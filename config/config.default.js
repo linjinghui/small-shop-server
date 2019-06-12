@@ -26,6 +26,7 @@ module.exports = appInfo => {
     },
   };
 
+  // 表单配置
   config.multipart = {
     // 表单上传字段限制的个数
     fields: 20,
@@ -33,6 +34,7 @@ module.exports = appInfo => {
     fileSize: '1mb',
   };
 
+  // 数据库配置
   config.mongoose = {
     url: 'mongodb://127.0.0.1:27017/smallshop',
     options: {},

@@ -5,6 +5,7 @@
  */
 module.exports = app => {
   const { router, controller } = app;
+  const cuser = app.middleware.cuser();
 
   // 默认
   router.get('/', controller.default.index);
@@ -19,5 +20,5 @@ module.exports = app => {
   router.post('/login', controller.login.signin);
   
   // 上传图片
-  router.post('/admin/upload/img', controller.upload.img);
+  router.post('/admin/upload/img', cuser, controller.upload.img);
 };
