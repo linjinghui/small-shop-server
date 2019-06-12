@@ -4,8 +4,8 @@ const Parameter = require('parameter');
 const Controller = require('egg').Controller;
 const svgCaptcha = require('svg-captcha');
 const util = require('../util/util');
-const base64 = require('base-64');
 const Check = new Parameter();
+let resBody = util.resdata(200);
 
 class LoginController extends Controller {
   // 获取验证码
@@ -47,7 +47,6 @@ class LoginController extends Controller {
 
   // 注册
   async regist () {
-    let resBody = util.resdata(200);
     const { ctx } = this;
     const vcode = ctx.request.body.vcode;
     const registCaptcha = ctx.session.registCaptcha;
@@ -79,21 +78,29 @@ class LoginController extends Controller {
     const { ctx } = this;
     const account = ctx.request.body.account;
     const vcode = ctx.request.body.vcode;
-    let pwd = ctx.request.body.pwd;
+    const pwd = ctx.request.body.pwd;
+    const loginCaptcha = ctx.session.loginCaptcha;
 
-    // 解码pwd
-    pwd = base64.decode(pwd);
+    if (vcode.toLowerCase() == loginCaptcha.toLowerCase()) {
+      await ctx.service.person.checkLoginAccount(account, pwd).then(function (ret) {
+        if (ret) {
+          // 把登录用户信息保存到session
+          ctx.session.user = ret;
+          // 设置session过期时间 * 30min
+          ctx.session.maxAge = 1000 * 60 * 30;
+          resBody = util.resdata(200, {name: ret.name, avatar: ret.avatar});
+        } else {
+          resBody = util.resdata(201, '用户不存在！');
+        }
+      }, function (err) {
+        resBody = util.resdata(503, err);
+      });
+    } else {
+      resBody = util.resdata(400, '验证码不正确');
+    }
 
-    ctx.body = {
-      code: 201,
-      msg: '',
-      result: {
-        account: account,
-        pwd: pwd,
-        vcode: vcode,
-        captcha: ctx.session.captcha
-      }
-    };
+    // 响应
+    ctx.body = resBody; 
   }
 }
 

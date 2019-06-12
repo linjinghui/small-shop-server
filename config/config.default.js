@@ -26,6 +26,13 @@ module.exports = appInfo => {
     },
   };
 
+  config.multipart = {
+    // 表单上传字段限制的个数
+    fields: 20,
+    // 文件上传的大小限制
+    fileSize: '1mb',
+  };
+
   config.mongoose = {
     url: 'mongodb://127.0.0.1:27017/smallshop',
     options: {},
