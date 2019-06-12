@@ -4,6 +4,7 @@ const Parameter = require('parameter');
 const Controller = require('egg').Controller;
 const svgCaptcha = require('svg-captcha');
 const util = require('../util/util');
+const base64 = require('base-64');
 const Check = new Parameter();
 
 class LoginController extends Controller {
@@ -46,21 +47,18 @@ class LoginController extends Controller {
 
   // 注册
   async regist () {
+    let resBody = util.resdata(200);
     const { ctx } = this;
-    const resBody = util.resdata(200);
-    const account = ctx.request.body.account;
-    const pwd = ctx.request.body.pwd;
     const vcode = ctx.request.body.vcode;
     const registCaptcha = ctx.session.registCaptcha;
     const rule = {
       'account': {type: 'string', required: true, min: 3, allowEmpty: false}
     };
-
     const errors = Check.validate(rule, ctx.request.body);
 
     if (errors == undefined) {
       if (vcode !== registCaptcha) {
-        resBody = util.resdata(200, '验证码不正确');
+        resBody = util.resdata(400, '验证码不正确');
       } else {
         const ret = await ctx.service.person.createStore(ctx.request.body);
         if (!ret) {
@@ -80,11 +78,14 @@ class LoginController extends Controller {
   async signin () {
     const { ctx } = this;
     const account = ctx.request.body.account;
-    const pwd = ctx.request.body.pwd;
     const vcode = ctx.request.body.vcode;
+    let pwd = ctx.request.body.pwd;
+
+    // 解码pwd
+    pwd = base64.decode(pwd);
 
     ctx.body = {
-      code: 200,
+      code: 201,
       msg: '',
       result: {
         account: account,
