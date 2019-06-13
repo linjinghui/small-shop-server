@@ -17,5 +17,15 @@ module.exports = {
             var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
             return v.toString(16);
         });
+    },
+    /**
+    * 去除对象中的空字段
+    */
+    removeEmptyKey (object) {
+        // 去除空条件
+        for (const key in object) {
+            !object[key] && (delete object[key]);
+        }
+        return object;
     }
 }

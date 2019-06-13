@@ -8,24 +8,28 @@ const path = require('path');
 const sendToWormhole = require('stream-wormhole');
 
 let resBody = util.resdata(200);
+const uploadDirName = '/public/uploads';
+let uploadPath  = path.join(__dirname, '..' + uploadDirName);
 
-class UploadController extends Controller {
+class UploadController extends Controller {  
   
   // 上传图片
   async img () {
-    console.log('==img==');
     const { ctx } = this;    
 
     const stream = await ctx.getFileStream();
     let fileName = stream.filename;
     const suffix = fileName.split('.')[fileName.split('.').length - 1];
+
     fileName = util.guid(8) + '.' + suffix;
-    // "image/jpeg",
     const mime = stream.mime || stream.mimeType;
+
     if (mime.indexOf('image') === 0) {
     
-      const filePath = `/public/uploads/${fileName}`;
-      let target  = path.join(__dirname, `..${filePath}`);
+      const filePath = uploadDirName + '/' + fileName;
+      // `/public/uploads/${fileName}`;
+      let target  = path.join(uploadPath, '/' + fileName);
+
       await new Promise((resolve, reject) => {
         const remoteFileStream = fs.createWriteStream(target);
         stream.pipe(remoteFileStream);
@@ -41,8 +45,6 @@ class UploadController extends Controller {
 
         remoteFileStream.on('finish', async () => {
           if (errFlag) return;
-          console.log('====');
-          console.log(JSON.stringify(stream.fields));
           resBody = util.resdata(200, 'http://' + ctx.request.header.host + filePath);
           resolve({ fileName, url: ctx.request.header.host + filePath });
         });
@@ -52,7 +54,21 @@ class UploadController extends Controller {
       resBody = util.resdata(400, '请上传图片类型的文件');
     }
     // 响应
-    console.log('==img 响应==');
+    ctx.body = resBody; 
+  }
+
+  // 删除图片
+  async delete () {
+    const { ctx } = this;
+    const fileUrl = ctx.request.body.url;
+
+    await ctx.service.file.deleteFile(fileUrl)
+    .then(() => {
+      resBody = util.resdata(200);
+    }, err => {
+      resBody = util.resdata(201, err);
+    });
+    // 响应
     ctx.body = resBody; 
   }
 }

@@ -21,4 +21,16 @@ module.exports = app => {
   
   // 上传图片
   router.post('/admin/upload/img', cuser, controller.upload.img);
+
+  // 删除图片
+  router.post('/admin/upload/delete', cuser, controller.upload.delete);
+  
+  // 保存商品
+  router.post('/admin/product/save', cuser, controller.product.save);
+
+  // 商品列表
+  router.get('/admin/product', cuser, controller.product.list);
+
+  // 商品详情
+  router.get('/admin/product/:id', cuser, controller.product.info);
 };
