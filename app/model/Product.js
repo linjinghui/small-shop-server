@@ -42,7 +42,7 @@ module.exports = app => {
   });
 
   // 新增数据
-  schema.statics.insert = function (data) {
+  schema.statics.insert = function (data, user) {
     const _this = this;
     return new Promise(function (resolve, reject) {
       _this.create({
@@ -68,7 +68,7 @@ module.exports = app => {
         // 是否推荐商品
         recommend: data.recommend,
         // 拥有者ID
-        'person_id': data.person_id || null,
+        'person_id': mongoose.Types.ObjectId(user._id) || null,
         // 添加时间
         'create_time': Date.now(),
         // 更新时间
@@ -83,6 +83,7 @@ module.exports = app => {
   schema.statics.update = function (data) {
     const _this = this;
     return new Promise(function (resolve, reject) {
+      data.update_time = Date.now();
       data = util.removeEmptyKey(data);
       _this.updateOne({_id: mongoose.Types.ObjectId(data._id)}, {$set: data}).exec((err, ret) => {
         err ? reject(err) : resolve(ret);
@@ -100,6 +101,9 @@ module.exports = app => {
       // id转换
       if (condition._id) {
         condition._id = mongoose.Types.ObjectId(condition._id);
+      }
+      if (condition.person_id) {
+        condition.person_id = mongoose.Types.ObjectId(condition.person_id);
       }
       // 去除空条件
       for (const key in condition) {

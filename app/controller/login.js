@@ -81,7 +81,9 @@ class LoginController extends Controller {
     const pwd = ctx.request.body.pwd;
     const loginCaptcha = ctx.session.loginCaptcha;
 
-    if (vcode.toLowerCase() == loginCaptcha.toLowerCase()) {
+    if (!loginCaptcha) {
+      resBody = util.resdata(400, '验证码已过期');
+    } else if (vcode.toLowerCase() == loginCaptcha.toLowerCase()) {
       await ctx.service.person.checkLoginAccount(account, pwd).then(function (ret) {
         if (ret) {
           // 把登录用户信息保存到session

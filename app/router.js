@@ -33,4 +33,10 @@ module.exports = app => {
 
   // 商品详情
   router.get('/admin/product/:id', cuser, controller.product.info);
+  
+  // 商品状态
+  router.post('/admin/product/status', cuser, controller.product.status);
+  
+  // 商品推荐
+  router.post('/admin/product/recommend', cuser, controller.product.recommend);
 };

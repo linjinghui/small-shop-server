@@ -6,9 +6,10 @@
 
 module.exports = options => {
     return async function cuser (ctx, next) {
-        console.log('===进入中间件===');
         const user = ctx.session.user;
         if (user) {
+            // 重新设置缓存时间
+            ctx.session.maxAge = 1000 * 60 * 30;
             await next();
         } else {
             ctx.status = 401;

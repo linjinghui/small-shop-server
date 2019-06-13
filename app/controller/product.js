@@ -1,8 +1,10 @@
 /** 产品 */
 'use strict';
 
-const util = require('../util/util');
 const Controller = require('egg').Controller;
+const util = require('../util/util');
+const Parameter = require('parameter');
+const Check = new Parameter();
 
 let resBody = util.resdata(200);
 
@@ -51,6 +53,59 @@ class ProductController extends Controller {
     // 响应
     ctx.body = resBody;
   }
+
+  // 商品状态修改
+  async status () {
+    const { ctx } = this;
+    const rule = {
+      'status': {type: 'string',required: true, values: [1, 2, 3]}
+    };
+    const id = ctx.request.body.id;   
+    // 状态 1: 已上架 2: 已下架 3: 已删除
+    const status = ctx.request.body.status;
+    const errors = Check.validate(rule, ctx.request.body);
+    if (errors) {
+      // 入参基础校验异常
+      resBody = util.resdata(400, '请求参数异常：' + errors[0].field + ' ' + errors[0].message);
+    } else {
+      await ctx.service.product.setStatus({'_id': id, status: status})
+      .then(ret => {
+        resBody = util.resdata(200, '设置成功');
+      }, err => {
+        // '操作失败'
+        resBody = util.resdata(503, err);
+      });
+    }
+
+    // 响应
+    ctx.body = resBody;
+  }
+
+  // 商品推荐状态修改
+  async recommend () {
+    const { ctx } = this;
+    const rule = {
+      'id': {type: 'string', required: true},
+      'recommend': {type: 'string', required: true, values: [true, false]}
+    };
+    const errors = Check.validate(rule, ctx.request.body);
+    if (errors) {
+      // 入参基础校验异常
+      resBody = util.resdata(400, '请求参数异常：' + errors[0].field + ' ' + errors[0].message);
+    } else {
+      await ctx.service.product.setRecommend(ctx.request.body)
+      .then(ret => {
+        resBody = util.resdata(200, '设置成功');
+      }, err => {
+        // '操作失败'
+        resBody = util.resdata(503, err);
+      });
+    }
+
+    // 响应
+    ctx.body = resBody;
+  }
+
 }
 
 module.exports = ProductController;
