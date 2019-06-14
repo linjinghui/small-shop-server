@@ -2,7 +2,7 @@
 'use strict';
 
 const Controller = require('egg').Controller;
-const util = require('../util/util');
+const util = require('../../util/util');
 const Parameter = require('parameter');
 const Check = new Parameter();
 

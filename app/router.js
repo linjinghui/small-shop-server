@@ -20,23 +20,23 @@ module.exports = app => {
   router.post('/login', controller.login.signin);
   
   // 上传图片
-  router.post('/admin/upload/img', cuser, controller.upload.img);
+  router.post('/admin/upload/img', cuser, controller.admin.upload.img);
 
   // 删除图片
-  router.post('/admin/upload/delete', cuser, controller.upload.delete);
+  router.post('/admin/upload/delete', cuser, controller.admin.upload.delete);
   
   // 保存商品
-  router.post('/admin/product/save', cuser, controller.product.save);
+  router.post('/admin/product/save', cuser, controller.admin.product.save);
 
   // 商品列表
-  router.get('/admin/product', cuser, controller.product.list);
+  router.get('/admin/product', cuser, controller.admin.product.list);
 
   // 商品详情
-  router.get('/admin/product/:id', cuser, controller.product.info);
+  router.get('/admin/product/:id', cuser, controller.admin.product.info);
   
   // 商品状态
-  router.post('/admin/product/status', cuser, controller.product.status);
+  router.post('/admin/product/status', cuser, controller.admin.product.status);
   
   // 商品推荐
-  router.post('/admin/product/recommend', cuser, controller.product.recommend);
+  router.post('/admin/product/recommend', cuser, controller.admin.product.recommend);
 };

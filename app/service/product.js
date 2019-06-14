@@ -28,6 +28,9 @@ class ProductService extends Service {
     // 设置拥有者ID、状态为非删除
     data.person_id = ctx.session.user._id;
     data.status = {$ne: 3};
+    if (data.name) {
+      data.name = {$regex: data.name};
+    }
     return await ctx.model.Product.search(page, size, data, '-cover -label -detail -desc -person_id -update_time');
   }
 
