@@ -17,7 +17,7 @@ class ProductService extends Service {
   }
 
   /**
-	 * 查询商品列表
+	 * Admin查询商品列表
 	 */
 	async getProductList (data) {
     const { ctx } = this;
@@ -32,6 +32,24 @@ class ProductService extends Service {
       data.name = {$regex: data.name};
     }
     return await ctx.model.Product.search(page, size, data, '-cover -label -detail -desc -person_id -update_time');
+  }
+
+   /**
+	 * Client 查询商品列表
+	 */
+	async getClientProductList (data) {
+    const { ctx } = this;
+    const page = data.page;
+    const size = data.size;
+    delete data.page;
+    delete data.size;
+    // 设置拥有者ID、状态为非删除
+    data.person_id = ctx.session.user._id;
+    data.status = 1;
+    if (data.name) {
+      data.name = {$regex: data.name};
+    }
+    return await ctx.model.Product.search(page, size, data, '-cover -detail -person_id -update_time');
   }
 
   /**

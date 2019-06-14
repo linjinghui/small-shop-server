@@ -36,7 +36,7 @@ module.exports = appInfo => {
 
   // 数据库配置
   config.mongoose = {
-    url: 'mongodb://127.0.0.1:27017/smallshop',
+    url: 'mongodb://121.40.134.40:27017/smallshop',
     options: {},
   };
   

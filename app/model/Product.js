@@ -21,7 +21,7 @@ module.exports = app => {
     rebate: { type: Number },
     // 产品产地
     'origin_place': { type: String },
-    // 产品标签 | 数组 | {text:"标签名称",bcolor:"red"}
+    // 产品标签 | 数组 | {text:"标签名称",bgcolor:"red"}
     label: { type: Array },
     // 产品详情 | 数组 | 图片
     detail: { type: Array },

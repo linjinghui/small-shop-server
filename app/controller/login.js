@@ -5,12 +5,12 @@ const Controller = require('egg').Controller;
 const svgCaptcha = require('svg-captcha');
 const util = require('../util/util');
 const Check = new Parameter();
-let resBody = util.resdata(200);
 
 class LoginController extends Controller {
   // 获取验证码
   async captcha () {
     const { ctx } = this;
+    let resBody = util.resdata(200);
     
     const options = {
       width: 100, 
@@ -48,6 +48,7 @@ class LoginController extends Controller {
   // 注册
   async regist () {
     const { ctx } = this;
+    let resBody = util.resdata(200);
     const vcode = ctx.request.body.vcode;
     const registCaptcha = ctx.session.registCaptcha;
     const rule = {
@@ -76,6 +77,7 @@ class LoginController extends Controller {
   // 登录
   async signin () {
     const { ctx } = this;
+    let resBody = util.resdata(200);
     const account = ctx.request.body.account;
     const vcode = ctx.request.body.vcode;
     const pwd = ctx.request.body.pwd;

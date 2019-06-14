@@ -7,7 +7,6 @@ const fs = require('fs');
 const path = require('path');
 const sendToWormhole = require('stream-wormhole');
 
-let resBody = util.resdata(200);
 const uploadDirName = '/public/uploads';
 let uploadPath  = path.join(__dirname, '..' + uploadDirName);
 
@@ -15,7 +14,8 @@ class UploadController extends Controller {
   
   // 上传图片
   async img () {
-    const { ctx } = this;    
+    const { ctx } = this;   
+    let resBody = util.resdata(200); 
 
     const stream = await ctx.getFileStream();
     let fileName = stream.filename;
@@ -60,6 +60,7 @@ class UploadController extends Controller {
   // 删除图片
   async delete () {
     const { ctx } = this;
+    let resBody = util.resdata(200);
     const fileUrl = ctx.request.body.url;
 
     await ctx.service.file.deleteFile(fileUrl)

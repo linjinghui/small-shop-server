@@ -6,6 +6,7 @@
 module.exports = app => {
   const { router, controller } = app;
   const cuser = app.middleware.cuser();
+  const xcxcuser = app.middleware.xcxcuser();
 
   // 默认
   router.get('/', controller.default.index);
@@ -19,6 +20,7 @@ module.exports = app => {
   // 登录
   router.post('/login', controller.login.signin);
   
+  // ======================[后台]===========================
   // 上传图片
   router.post('/admin/upload/img', cuser, controller.admin.upload.img);
 
@@ -39,4 +41,11 @@ module.exports = app => {
   
   // 商品推荐
   router.post('/admin/product/recommend', cuser, controller.admin.product.recommend);
+
+  // ======================[小程序]===========================
+  // 商品列表
+  router.get('/client/product', xcxcuser, controller.xcx.product.list);
+  
+  // 商品详情
+  router.get('/client/product/:id', xcxcuser, controller.xcx.product.info);
 };

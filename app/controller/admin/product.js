@@ -6,13 +6,12 @@ const util = require('../../util/util');
 const Parameter = require('parameter');
 const Check = new Parameter();
 
-let resBody = util.resdata(200);
-
 class ProductController extends Controller {  
   
   // 保存商品
   async save () {
     const { ctx } = this;    
+    let resBody = util.resdata(200);
 
     await ctx.service.product.saveProduct(ctx.request.body)
     .then(ret => {
@@ -27,7 +26,8 @@ class ProductController extends Controller {
 
   // 商品列表
   async list () {
-    const { ctx } = this;   
+    const { ctx } = this;  
+    let resBody = util.resdata(200);
 
     await ctx.service.product.getProductList(ctx.query)
     .then(ret => {
@@ -42,6 +42,7 @@ class ProductController extends Controller {
   // 商品详情
   async info () {
     const { ctx } = this;   
+    let resBody = util.resdata(200);
 
     await ctx.service.product.getProductInfo({'_id': ctx.params.id})
     .then(ret => {
@@ -57,6 +58,7 @@ class ProductController extends Controller {
   // 商品状态修改
   async status () {
     const { ctx } = this;
+    let resBody = util.resdata(200);
     const rule = {
       'status': {type: 'string',required: true, values: [1, 2, 3]}
     };
@@ -84,6 +86,7 @@ class ProductController extends Controller {
   // 商品推荐状态修改
   async recommend () {
     const { ctx } = this;
+    let resBody = util.resdata(200);
     const rule = {
       'id': {type: 'string', required: true},
       'recommend': {type: 'string', required: true, values: [true, false]}
