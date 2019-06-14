@@ -44,7 +44,7 @@ class ProductController extends Controller {
     const { ctx } = this;   
     let resBody = util.resdata(200);
 
-    await ctx.service.product.getProductInfo({'_id': ctx.params.id})
+    await ctx.service.product.getProductInfoById(ctx.params.id)
     .then(ret => {
       resBody = util.resdata(200, ret);
     }, err => {
@@ -70,7 +70,7 @@ class ProductController extends Controller {
       // 入参基础校验异常
       resBody = util.resdata(400, '请求参数异常：' + errors[0].field + ' ' + errors[0].message);
     } else {
-      await ctx.service.product.setStatus({'_id': id, status: status})
+      await ctx.service.product.setStatus(id, status)
       .then(ret => {
         resBody = util.resdata(200, '设置成功');
       }, err => {
@@ -96,7 +96,7 @@ class ProductController extends Controller {
       // 入参基础校验异常
       resBody = util.resdata(400, '请求参数异常：' + errors[0].field + ' ' + errors[0].message);
     } else {
-      await ctx.service.product.setRecommend(ctx.request.body)
+      await ctx.service.product.setRecommend(ctx.request.body.id, ctx.request.body.recommend)
       .then(ret => {
         resBody = util.resdata(200, '设置成功');
       }, err => {

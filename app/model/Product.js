@@ -80,12 +80,13 @@ module.exports = app => {
   }
 
   // 更新数据
-  schema.statics.update = function (data) {
+  schema.statics.update = function (data, user) {
     const _this = this;
     return new Promise(function (resolve, reject) {
       data.update_time = Date.now();
       data = util.removeEmptyKey(data);
-      _this.updateOne({_id: mongoose.Types.ObjectId(data._id)}, {$set: data}).exec((err, ret) => {
+      _this.updateOne({_id: mongoose.Types.ObjectId(data._id), person_id: mongoose.Types.ObjectId(user._id)}, {$set: data})
+      .exec((err, ret) => {
         err ? reject(err) : resolve(ret);
       });
     });
@@ -131,6 +132,9 @@ module.exports = app => {
     // id转换
     if (condition._id) {
       condition._id = mongoose.Types.ObjectId(condition._id);
+    }
+    if (condition.person_id) {
+      condition.person_id = mongoose.Types.ObjectId(condition.person_id);
     }
     return new Promise(function (resolve, reject) {
       _this.findOne(condition || {}).exec((err, ret) => {

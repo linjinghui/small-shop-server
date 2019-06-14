@@ -4,21 +4,17 @@ const Service = require('egg').Service;
  
 class ProductService extends Service {
  
-  /**
-	 * 保存商品
-	 */
+  // 保存、更新商品
 	async saveProduct (data) {
     const { ctx } = this;
     if (data._id) {
-      return await ctx.model.Product.update(data);
+      return await ctx.model.Product.update(data, ctx.session.user);
     } else {
       return await ctx.model.Product.insert(data, ctx.session.user);
     }
   }
 
-  /**
-	 * Admin查询商品列表
-	 */
+  // Admin查询商品列表
 	async getProductList (data) {
     const { ctx } = this;
     const page = data.page;
@@ -31,45 +27,37 @@ class ProductService extends Service {
     if (data.name) {
       data.name = {$regex: data.name};
     }
-    return await ctx.model.Product.search(page, size, data, '-cover -label -detail -desc -person_id -update_time');
+    return await ctx.model.Product.search(page, size, data, '-cover -label -detail -desc -person_id -update_time -v');
   }
 
-   /**
-	 * Client 查询商品列表
-	 */
-	async getClientProductList (data) {
+   // Client查询商品列表
+	async getClientProductList (page, size) {
     const { ctx } = this;
-    const page = data.page;
-    const size = data.size;
-    delete data.page;
-    delete data.size;
-    // 设置拥有者ID、状态为非删除
-    data.person_id = ctx.session.user._id;
-    data.status = 1;
-    if (data.name) {
-      data.name = {$regex: data.name};
-    }
-    return await ctx.model.Product.search(page, size, data, '-cover -detail -person_id -update_time');
+    // 设置拥有者ID、状态为已上线
+    const data = {
+      person_id: ctx.session.user._id,
+      status: 1
+    };
+    
+    return await ctx.model.Product.search(page, size, data, '-cover -detail -recommend -status -person_id -create_time -update_time -v');
   }
 
-  /**
-	 * 查询商品详情
-	 */
-	async getProductInfo (data) {
+  // 查询商品详情
+	async getProductInfoById (id) {
     const { ctx } = this;
-    return await ctx.model.Product.searchOne(data, '-person_id -create_time -update_time');
+    return await ctx.model.Product.searchOne({_id: id, person_id: ctx.session.user._id}, '-recommend -person_id -create_time -update_time -v');
   }
 
-  // 设置状态
-  async setStatus (data) {
+  // 设置商品状态
+  async setStatus (id, status) {
     const { ctx } = this;
-    return await ctx.model.Product.update(data);
+    return await ctx.model.Product.update({_id: id, status: status});
   }
 
   // 设置推荐状态
-  async setRecommend (data) {
+  async setRecommend (id, recommend) {
     const { ctx } = this;
-    return await ctx.model.Product.update({'_id': data.id, recommend: data.recommend});
+    return await ctx.model.Product.update({'_id': id, recommend: recommend});
   }
   
 }

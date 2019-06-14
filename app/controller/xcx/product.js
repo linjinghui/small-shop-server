@@ -14,7 +14,7 @@ class ProductController extends Controller {
     let resBody = util.resdata(200);
     const auth = ctx.request.header.auth;
 
-    await ctx.service.product.getClientProductList(ctx.query)
+    await ctx.service.product.getClientProductList(ctx.query.page, ctx.query.size)
     .then(ret => {
       resBody = util.resdata(200, ret);
     }, err => {
@@ -29,7 +29,7 @@ class ProductController extends Controller {
     const { ctx } = this;
     let resBody = util.resdata(200);
 
-    await ctx.service.product.getProductInfo({'_id': ctx.params.id})
+    await ctx.service.product.getProductInfoById(ctx.params.id)
     .then(ret => {
       resBody = util.resdata(200, ret);
     }, err => {
