@@ -16,6 +16,25 @@ class ProductController extends Controller {
 
     await ctx.service.product.getClientProductList(ctx.query.page, ctx.query.size)
     .then(ret => {
+      // 处理结果
+      let _list = ret.list;
+      for (let i = 0;i < _list.length;i++) {
+        // ===== 获取最低单价,不含无库存的
+        let _specs = _list[i].specs || [];
+        // 1、按单价升序
+        _specs.sort(function (a, b) { return a.price > b.price });
+        // 2、移除库存为0的规格
+        _specs.forEach(function (item, index) { 
+          if(item.stock == 0) {
+            _specs.splice(index, 1);
+          } else {
+            // 计算折后价
+            item.rprice = util.countRprice(item.price, _list[i].rebate);
+          }
+        });
+        _list[i].specs = _specs;
+      }
+      ret.list = _list;
       resBody = util.resdata(200, ret);
     }, err => {
       resBody = util.resdata(503, '查询商品列表失败');

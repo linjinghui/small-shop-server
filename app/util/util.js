@@ -27,5 +27,8 @@ module.exports = {
             !object[key] && (delete object[key]);
         }
         return object;
+    },
+    countRprice (price, rebate) {
+        return (rebate / 10 * price).toFixed(2);
     }
 }
