@@ -8,7 +8,7 @@ const path = require('path');
 const sendToWormhole = require('stream-wormhole');
 
 const uploadDirName = '/public/uploads';
-let uploadPath  = path.join(__dirname, '..' + uploadDirName);
+let uploadPath  = path.join(__dirname, '../..' + uploadDirName);
 
 class UploadController extends Controller {  
   
