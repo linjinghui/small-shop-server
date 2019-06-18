@@ -16,7 +16,7 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1554776021985_4543';
 
   // add your middleware config here
-  config.middleware = [];
+  config.middleware = [ 'reqs' ];
 
   // 添加view配置
   config.view = {
