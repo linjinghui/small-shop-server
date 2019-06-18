@@ -42,6 +42,18 @@ class ProductService extends Service {
     return await ctx.model.Product.search(page, size, data, '-cover -detail -recommend -status -person_id -create_time -update_time -v');
   }
 
+  // Client查询推荐商品列表
+ async getRecommendList (page, size) {
+   const { ctx } = this;
+   // 设置拥有者ID
+   const data = {
+     person_id: ctx.session.user._id,
+     recommend: true
+   };
+   
+   return await ctx.model.Product.search(1, 20, data, '-cover -detail -recommend -status -person_id -create_time -update_time -v');
+ }
+
   // 查询商品详情
 	async getProductInfoById (id) {
     const { ctx } = this;

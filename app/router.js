@@ -48,4 +48,7 @@ module.exports = app => {
   
   // 商品详情
   router.get('/client/product/:id', xcxcuser, controller.xcx.product.info);
+  
+  // 推荐商品列表
+  router.get('/client/recommend', xcxcuser, controller.xcx.product.recommendList);
 };
