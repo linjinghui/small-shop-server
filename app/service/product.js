@@ -63,13 +63,13 @@ class ProductService extends Service {
   // 设置商品状态
   async setStatus (id, status) {
     const { ctx } = this;
-    return await ctx.model.Product.update({_id: id, status: status});
+    return await ctx.model.Product.update({_id: id, status: status}, ctx.session.user);
   }
 
   // 设置推荐状态
   async setRecommend (id, recommend) {
     const { ctx } = this;
-    return await ctx.model.Product.update({'_id': id, recommend: recommend});
+    return await ctx.model.Product.update({'_id': id, recommend: recommend}, ctx.session.user);
   }
   
 }
