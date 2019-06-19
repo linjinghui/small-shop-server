@@ -10,20 +10,18 @@ class LoginController extends Controller {
   // 获取验证码
   async captcha () {
     const { ctx } = this;
-    let resBody = util.resdata(200);
-    
     const options = {
       width: 100, 
-      height: 24, 
+      height: 32, 
       // 排除字段
       ignoreChars: '0o1i',
       // 长度
       size: 4,
-      fontSize: 50, 
-      color: true,
-      background: '#ddd',
+      fontSize: 40, 
+      // color: true,
+      // background: '#f5f0c4',
       // 干扰线数
-      noise: 3
+      noise: 1
     } 
     const type = ctx.query.type || 1;
     let captcha = '';
