@@ -45,8 +45,7 @@ class UploadController extends Controller {
 
         remoteFileStream.on('finish', async () => {
           if (errFlag) return;
-          // resBody = util.resdata(200, 'http://' + ctx.request.header.host + filePath);
-          resBody = util.resdata(200, ctx.request.header.origin + '/api' + filePath);
+          resBody = util.resdata(200, ctx.request.header.referer + 'api' + filePath);
           resolve({ fileName, url: ctx.request.header.host + filePath });
         });
       });
