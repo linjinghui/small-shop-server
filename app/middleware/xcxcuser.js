@@ -14,15 +14,32 @@ module.exports = options => {
         let auth = ctx.request.header.auth;
         if (!auth) {
             ctx.status = 502;
-        } else if (!user) {
+        // } else if (!user) {
+        } else if (true) {
             auth = auth.replace(/#/g, '4').substr((new Date().getTime()+'').length);
-            // 数据库获取用户信息
+            // 数据库获取商户信息
             await ctx.model.Person.find({account: base64.decode(auth)}).then(ret => {
                 if (ret) {
                     user = ret;
+                    // 获取小程序用户信息
+                    return ctx.curl('https://api.weixin.qq.com/sns/jscode2session', {
+                        method: 'GET',
+                        dataType: 'json',
+                        data: {
+                            appid: ret.appId || 'wx32656ba9761508f9',
+                            secret: ret.secret || 'd4988bea3e812069d09bf0f6a820f8b0',
+                            js_code: ctx.query.code,
+                            grant_type: 'authorization_code'
+                        }
+                    });
+                }
+            }).then(ret => {
+                if (ret.data && ret.data.openid) {
+                    user.open_id = ret.data.openid;
                     ctx.session.user = user;
                 }
             });
+
         } 
         
         if (user) {
