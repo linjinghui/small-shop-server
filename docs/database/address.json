@@ -12,5 +12,5 @@
   // 收获门牌地址
   "door_address": null,
   // 拥有者ID
-  "person_id": null
+  "open_id": null
 }
