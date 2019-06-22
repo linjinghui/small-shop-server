@@ -37,6 +37,7 @@ class ProductController extends Controller {
       ret.list = _list;
       resBody = util.resdata(200, ret);
     }, err => {
+      ctx.logger.error(err);
       resBody = util.resdata(503, '查询商品列表失败');
     });
     // 响应

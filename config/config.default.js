@@ -36,11 +36,25 @@ module.exports = appInfo => {
 
   // 数据库配置
   config.mongoose = {
-    url: 'mongodb://121.40.134.40:27017/smallshop',
-    // url: 'mongodb://127.0.0.1:27017/smallshop',
+    // url: 'mongodb://121.40.134.40:27017/smallshop',
+    url: 'mongodb://127.0.0.1:27017/smallshop',
     options: {},
   };
   
+  config.security = {
+    csrf: {
+      // 关闭post csrf
+      // enable: false
+      ignore: ctx => {
+        // 小程序忽略csrf
+        if(ctx.request.url.indexOf('/client/') === 0){
+          return true;
+        }
+        return false
+      }
+    }
+  };
+
   // add your user config here
   const userConfig = {
     myAppName: 'small-shop',

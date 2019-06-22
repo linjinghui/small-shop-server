@@ -27,7 +27,7 @@ class ProductService extends Service {
     if (data.name) {
       data.name = {$regex: data.name};
     }
-    return await ctx.model.Product.search(page, size, data, '-cover -label -detail -desc -person_id -update_time -v');
+    return await ctx.model.Product.search(page, size, data, '-cover -label -detail -desc -person_id -update_time -__v');
   }
 
    // Client查询商品列表
@@ -39,7 +39,7 @@ class ProductService extends Service {
       status: 1
     };
     
-    return await ctx.model.Product.search(page, size, data, '-cover -detail -recommend -status -person_id -create_time -update_time -v');
+    return await ctx.model.Product.search(page, size, data, '-cover -detail -recommend -status -person_id -create_time -update_time -__v');
   }
 
   // Client查询推荐商品列表
@@ -51,13 +51,13 @@ class ProductService extends Service {
      recommend: true
    };
    
-   return await ctx.model.Product.search(1, 20, data, '-cover -detail -recommend -status -person_id -create_time -update_time -v');
+   return await ctx.model.Product.search(1, 20, data, '-cover -detail -recommend -status -person_id -create_time -update_time -__v');
  }
 
   // 查询商品详情
 	async getProductInfoById (id) {
     const { ctx } = this;
-    return await ctx.model.Product.searchOne({_id: id, person_id: ctx.session.user._id}, '-recommend -person_id -create_time -update_time -v');
+    return await ctx.model.Product.searchOne({_id: id, person_id: ctx.session.user._id}, '-recommend -person_id -create_time -update_time -__v');
   }
 
   // 设置商品状态

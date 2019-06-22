@@ -43,6 +43,9 @@ module.exports = app => {
   router.post('/admin/product/recommend', cuser, controller.admin.product.recommend);
 
   // ======================[小程序]===========================
+  // 登录
+  router.post('/client/login', controller.login.xcxsignin);
+
   // 商品列表
   router.get('/client/product', xcxcuser, controller.xcx.product.list);
   
@@ -51,4 +54,13 @@ module.exports = app => {
   
   // 推荐商品列表
   router.get('/client/recommend', xcxcuser, controller.xcx.product.recommendList);
+  
+  // 配送地址列表
+  router.get('/client/address', xcxcuser, controller.xcx.address.list);
+
+  // 保存、更新配送地址
+  router.post('/client/address/save', xcxcuser, controller.xcx.address.save);
+  
+  // 删除配送地址
+  router.post('/client/address/delete', xcxcuser, controller.xcx.address.delete);
 };

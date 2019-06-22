@@ -3,6 +3,7 @@
 const Parameter = require('parameter');
 const Controller = require('egg').Controller;
 const svgCaptcha = require('svg-captcha');
+const base64 = require('base-64');
 const util = require('../util/util');
 const Check = new Parameter();
 
@@ -99,6 +100,67 @@ class LoginController extends Controller {
       });
     } else {
       resBody = util.resdata(400, '验证码不正确');
+    }
+
+    // 响应
+    ctx.body = resBody; 
+  }
+
+  // 小程序登录
+  async xcxsignin () {
+    const { ctx } = this;
+    let resBody = util.resdata(200);
+    // 小程序拥有者账号(加密的)
+    let auth = ctx.request.body.auth;
+    // 小程序用户code
+    let code = ctx.request.body.code;
+    // 商户信息
+    let authInfo = '';
+
+    const rule = {
+      'auth': {type: 'string', required: true, min: 5, allowEmpty: false},
+      'code': {type: 'string', required: true, min: 5, allowEmpty: false}
+    };
+    const errors = Check.validate(rule, ctx.request.body);
+
+    if (errors == undefined) {
+      // 解密 auth
+      auth = auth.replace(/#/g, '4').substr((new Date().getTime()+'').length);
+      // 获取 商户信息
+      await ctx.model.Person.find({account: base64.decode(auth)})
+      .then(ret => {
+        authInfo = ret;
+        // 获取小程序用户信息
+        return ctx.curl('https://api.weixin.qq.com/sns/jscode2session', {
+          method: 'GET', 
+          dataType: 'json', 
+          data: {
+            appid: ret.appId || 'wx32656ba9761508f9',
+            secret: ret.secret || 'd4988bea3e812069d09bf0f6a820f8b0',
+            js_code: code,
+            grant_type: 'authorization_code'
+          }
+        });
+      })
+      .then(ret => {
+        // _id + open_id 加密返回
+        if (ret.data && ret.data.openid) {
+          const open_id = ret.data.openid;
+          resBody = util.resdata(200, base64.encode(open_id + 'S4-L' + authInfo._id));
+        } else {
+          resBody = util.resdata(201, '小程序用户信息获取失败');  
+        }
+      })
+      .catch(err => {
+        ctx.logger.error(err);
+        resBody = util.resdata(503, '数据库操作异常');
+      });
+      
+      
+      
+    } else {
+      // 入参基础校验异常
+      resBody = util.resdata(400, '请求参数异常：' + errors[0].field + errors[0].message);
     }
 
     // 响应

@@ -19,6 +19,7 @@ class AddressController extends Controller {
     .then(ret => {
       resBody = util.resdata(200, ret);
     }, err => {
+      ctx.logger.error(err);
       resBody = util.resdata(503, '查询配送地址列表失败');
     });
     // 响应
@@ -30,7 +31,7 @@ class AddressController extends Controller {
     const { ctx } = this;
     let resBody = util.resdata(200);
     const rule = {
-      'mobile': {type: 'string', required: true, min: 11, allowEmpty: false},
+      'mobile': {type: 'phone', required: true, min: 11, allowEmpty: false},
       'name': {type: 'string', required: true, min: 2, allowEmpty: false},
       'address': {type: 'string', required: true, min: 3, allowEmpty: false},
       'door_address': {type: 'string', required: true, min: 3, allowEmpty: false}
@@ -43,6 +44,32 @@ class AddressController extends Controller {
         resBody = util.resdata(200, ret._id);
       }, err => {
         // '保存失败'
+        resBody = util.resdata(503, err);
+      });
+    } else {
+      // 入参基础校验异常
+      resBody = util.resdata(400, '请求参数异常：' + errors[0].field + errors[0].message);
+    }
+
+    // 响应
+    ctx.body = resBody; 
+  }
+
+  // 删除配送地址
+  async delete () {
+    const { ctx } = this;
+    let resBody = util.resdata(200);
+    const rule = {
+      '_id': {type: 'string', required: true, min: 11, allowEmpty: false}
+    };
+    const errors = Check.validate(rule, ctx.request.body);
+
+    if (errors == undefined) {
+      await ctx.service.address.deleteAddress(ctx.request.body._id)
+      .then(ret => {
+        resBody = util.resdata(200, ret._id);
+      }, err => {
+        // '删除失败'
         resBody = util.resdata(503, err);
       });
     } else {

@@ -10,7 +10,24 @@ class AddressService extends Service {
     if (data._id) {
       return await ctx.model.Address.update(data, ctx.session.user);
     } else {
-      return await ctx.model.Address.insert(data, ctx.session.user);
+      // 配送地址可添加个数
+      const maxCount = 10;
+      return new Promise(function (resolve, reject) {
+        ctx.model.Address.count({'open_id': ctx.session.user.open_id})
+        .then(ret => {
+          if (ret < maxCount) {
+            return ctx.model.Address.insert(data, ctx.session.user);
+          } else {
+            reject('配送地址最多' + maxCount + '个');
+          }
+        })
+        .then(ret => {
+          resolve(ret);
+        })
+        .catch(err => {
+          reject(err);
+        });  
+      });
     }
   }
 
@@ -18,7 +35,7 @@ class AddressService extends Service {
 	async getAddressList () {
     const { ctx } = this;
 
-    return await ctx.model.Address.search({open_id: ctx.session.user.open_id}, '-open_id -time -update_time -v');
+    return await ctx.model.Address.search({open_id: ctx.session.user.open_id}, '-open_id -time -update_time -__v');
   }
 
    // 删除配送地址

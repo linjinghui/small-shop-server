@@ -16,4 +16,10 @@ module.exports = app => {
     // const used = Date.now() - ctx.starttime;
     ctx.logger.info('==响应内容==' + JSON.stringify(ctx.body));
   });
+  // 新增规格验证
+  app.validator.addRule('phone', (rule, value) => {
+    if (!(/^[\d-]{8,}$/.test(value))) {
+      return '无效的电话号码';
+    }
+  });
 };

@@ -34,6 +34,10 @@ module.exports = app => {
     // 更新时间
     'update_time': {
       type: Date
+    },
+    // 最近使用时间
+    'last_use_time': {
+      type: Date
     }
   });
 
@@ -55,7 +59,9 @@ module.exports = app => {
         // 加入时间
         time: Date.now(),
         // 更新时间
-        update_time: null
+        update_time: null,
+        // 最近使用时间
+        last_use_time: null
       }, function (err, ret) {
         if (err) {
           reject(err);
@@ -87,6 +93,7 @@ module.exports = app => {
       if (data.name) udata.name = data.name;
       if (data.address) udata.address = data.address;
       if (data.door_address) udata.door_address = data.door_address;
+      if (data.last_use_time) udata.last_use_time = data.last_use_time;
       if (JSON.stringify(udata).length > 2) udata.update_time = Date.now();
 
       _this.updateOne({_id: mongoose.Types.ObjectId(data._id), open_id: user.open_id}, {$set: udata})
@@ -100,8 +107,21 @@ module.exports = app => {
   schema.statics.search = function (data, backKey) {
     const _this = this;
     return new Promise(function (resolve, reject) {
-      _this.find(data, backKey || '', function (err, ret) {
+      // _this.find(data, backKey || '', function (err, ret) {
+      //   err ? reject(err) : resolve(ret);
+      // });
+      _this.find(data, backKey || '').sort({'last_use_time': -1}).exec((err, ret) => {
         err ? reject(err) : resolve(ret);
+      })
+    });
+  }
+
+  // 统计个数
+  schema.statics.count = function (condition) {
+    const _this = this;
+    return new Promise(function (resolve, reject) {
+      _this.find(condition || {}).count().exec((err, total) => {
+        err ? reject(err) : resolve(total);
       });
     });
   }
