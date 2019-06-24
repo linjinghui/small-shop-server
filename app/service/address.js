@@ -35,7 +35,7 @@ class AddressService extends Service {
 	async getAddressList () {
     const { ctx } = this;
 
-    return await ctx.model.Address.search({open_id: ctx.session.user.open_id}, '-open_id -time -update_time -__v');
+    return await ctx.model.Address.search({open_id: ctx.session.user.open_id}, '-open_id -time -update_time -last_use_time -__v');
   }
 
    // 删除配送地址

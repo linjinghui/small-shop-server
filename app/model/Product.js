@@ -45,6 +45,10 @@ module.exports = app => {
   schema.statics.insert = function (data, user) {
     const _this = this;
     return new Promise(function (resolve, reject) {
+      // 设置规格ID
+      (data.specs || []).forEach(item => {
+        item._id = util.guid();
+      });
       _this.create({
         name: data.name || null,
         // 产品头像
@@ -85,6 +89,14 @@ module.exports = app => {
     return new Promise(function (resolve, reject) {
       data.update_time = Date.now();
       data = util.removeEmptyKey(data);
+      // 设置规格ID
+      if (data.specs && data.specs.length > 0) {
+        data.specs.forEach(item => {
+          if (!item._id) {
+            item._id = util.guid();
+          }
+        });
+      }
       _this.updateOne({_id: mongoose.Types.ObjectId(data._id), person_id: mongoose.Types.ObjectId(user._id)}, {$set: data})
       .exec((err, ret) => {
         err ? reject(err) : resolve(ret);
