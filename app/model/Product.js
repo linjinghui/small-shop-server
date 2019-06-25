@@ -109,15 +109,29 @@ module.exports = app => {
     const _this = this;
     page = parseInt(page) || 1;
     size = parseInt(size) || 20;
+    // 转换对象中的ObjectId
+    let parseObjectId = obj => {
+      if (obj._id) {
+        obj._id = mongoose.Types.ObjectId(obj._id);
+      }
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+      }
+      return obj;
+    }
 
     if (condition) {
-      // id转换
-      if (condition._id) {
-        condition._id = mongoose.Types.ObjectId(condition._id);
-      }
-      if (condition.person_id) {
-        condition.person_id = mongoose.Types.ObjectId(condition.person_id);
-      }
+      condition = parseObjectId(condition);
+      (condition.$or || []).forEach(item => {
+        item = parseObjectId(item);
+      });
+      // // id转换
+      // if (condition._id) {
+      //   condition._id = mongoose.Types.ObjectId(condition._id);
+      // }
+      // if (condition.person_id) {
+      //   condition.person_id = mongoose.Types.ObjectId(condition.person_id);
+      // }
       // 去除空条件
       for (const key in condition) {
         !condition[key] && (delete condition[key]);

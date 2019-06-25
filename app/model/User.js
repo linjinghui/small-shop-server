@@ -1,5 +1,5 @@
 /**
- * 商户信息表
+ * 用户信息表
  */
 
 module.exports = app => {
@@ -18,17 +18,13 @@ module.exports = app => {
     name: {
       type: String
     },
-    // 帐号
-    account: {
+    // 微信ID
+    'open_id': {
       type: String
     },
-    // 密码
-    pwd: {
-      type: String
-    },
-    // 加入时间
-    time: {
-      type: Date
+    // 买家帐号所属商家
+    'person_id': {
+      type: mongoose.Types.ObjectId
     }
   });
 
@@ -43,12 +39,10 @@ module.exports = app => {
         mobile: data.mobile || null,
         // 姓名
         name: data.name || null,
-        // 帐号
-        account: data.account || null,
-        // 密码
-        pwd: data.pwd || null,
-        // 加入时间
-        time: Date.now()
+        // 微信ID
+        open_id: data.open_id || null,
+        // 买家帐号所属商家
+        person_id: mongoose.Types.ObjectId(data.person_id) || null
       }, function (err, ret) {
         if (err) {
           reject(err);
@@ -60,15 +54,34 @@ module.exports = app => {
   }
 
   // 单个查询
-  schema.statics.find = function (data) {
+  schema.statics.find = function (condition) {
     const _this = this;
+
+    // 转换对象中的ObjectId
+    let parseObjectId = obj => {
+      if (obj._id) {
+        obj._id = mongoose.Types.ObjectId(obj._id);
+      }
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+      }
+      return obj;
+    }
+
+    if (condition) {
+      condition = parseObjectId(condition);
+      (condition.$or || []).forEach(item => {
+        item = parseObjectId(item);
+      });
+    }
+
     return new Promise(function (resolve, reject) {
-      _this.findOne(data, function (err, ret) {
+      _this.findOne(condition, function (err, ret) {
         err ? reject(err) : resolve(ret);
       });
     });
   }
 
-  // 返回model，其中person为数据库中表的名称
-  return mongoose.model('Person', schema, 'person');
+  // 返回model，其中 user 为数据库中表的名称
+  return mongoose.model('User', schema, 'user');
 }

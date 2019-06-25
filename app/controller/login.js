@@ -143,8 +143,16 @@ class LoginController extends Controller {
         });
       })
       .then(ret => {
-        // _id + open_id 加密返回
         if (ret.data && ret.data.openid) {
+          // 存储用户信息
+          ctx.service.user.saveUser({
+            avatar: ctx.request.body.avatar,
+            mobile: ctx.request.body.mobile,
+            name: ctx.request.body.name,
+            open_id: ret.data.openid,
+            person_id: authInfo._id
+          });
+          // _id + open_id 加密返回
           const open_id = ret.data.openid;
           resBody = util.resdata(200, base64.encode(open_id + 'S4-L' + authInfo._id));
         } else {

@@ -63,4 +63,7 @@ module.exports = app => {
   
   // 删除配送地址
   router.post('/client/address/delete', xcxcuser, controller.xcx.address.delete);
+  
+  // 新增订单
+  router.post('/client/order/save', xcxcuser, controller.xcx.order.save);
 };
