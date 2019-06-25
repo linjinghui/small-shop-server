@@ -23,7 +23,7 @@ module.exports = app => {
     'open_id': {
       type: String
     },
-    // 订单状态 1：待确认，2：待备货，3：待分拣，4：待配送，5：已完成
+    // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
     "status": {
       type: Number
     },
@@ -70,7 +70,7 @@ module.exports = app => {
         consignees_id: mongoose.Types.ObjectId(data.consignees_id) || null,
         // 微信ID - 下单人
         open_id: data.open_id || null,
-        // 订单状态 1：待确认，2：待备货，3：待分拣，4：待配送，5：已完成
+        // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
         status: 1,
         // 备注
         remark: data.remark || null,
@@ -119,8 +119,8 @@ module.exports = app => {
       if (data.money) udata.money = data.money;
       // 配送地址ID
       if (data.consignees_id) udata.consignees_id = mongoose.Types.ObjectId(data.consignees_id);
-      // 订单状态 1：待确认，2：待备货，3：待分拣，4：待配送，5：已完成
-      if (data.status) udata.status = data.status;
+      // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
+      if (data.status || data.status === 0) udata.status = data.status;
       // 原因
       if (data.reason) udata.reason = data.reason;
       // 订单确认时间
@@ -139,13 +139,30 @@ module.exports = app => {
     });
   }
 
-  // 查询订单
+  // 查询订单列表
   schema.statics.search = function (page, size, condition, backKey) {
     const _this = this;
     page = parseInt(page) || 1;
     size = parseInt(size) || 20;
 
     if (condition) {
+      // 转换对象中的ObjectId
+      let parseObjectId = obj => {
+        if (obj._id) {
+          obj._id = mongoose.Types.ObjectId(obj._id);
+        }
+        if (obj.person_id) {
+          obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+        }
+        return obj;
+      }
+
+      if (condition) {
+        condition = parseObjectId(condition);
+        (condition.$or || []).forEach(item => {
+          item = parseObjectId(item);
+        });
+      }
       // 去除空条件
       for (const key in condition) {
         !condition[key] && (delete condition[key]);
@@ -153,7 +170,7 @@ module.exports = app => {
     }
     return new Promise(function (resolve, reject) {
       // 查询总记录数
-      _this.find(condition || {}).count().exec((err, total) => {
+      _this.find(condition || {}).countDocuments().exec((err, total) => {
         if (err) {
           reject(err);
         } else {
@@ -166,6 +183,41 @@ module.exports = app => {
             err ? reject(err) : resolve({list: ret, page: page, total: total});
           });
         }
+      });
+    });
+  }
+  
+  // 查询单个订单
+  schema.statics.searchOne = function (condition, backKey) {
+    const _this = this;
+
+    if (condition) {
+      // 转换对象中的ObjectId
+      let parseObjectId = obj => {
+        if (obj._id) {
+          obj._id = mongoose.Types.ObjectId(obj._id);
+        }
+        if (obj.person_id) {
+          obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+        }
+        return obj;
+      }
+
+      if (condition) {
+        condition = parseObjectId(condition);
+        (condition.$or || []).forEach(item => {
+          item = parseObjectId(item);
+        });
+      }
+      // 去除空条件
+      for (const key in condition) {
+        !condition[key] && (delete condition[key]);
+      }
+    }
+    return new Promise(function (resolve, reject) {
+      // 查询总记录数
+      _this.findOne(condition || {}, backKey).exec((err, ret) => {
+        err ? reject(err) : resolve(ret);
       });
     });
   }

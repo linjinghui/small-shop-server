@@ -66,4 +66,10 @@ module.exports = app => {
   
   // 新增订单
   router.post('/client/order/save', xcxcuser, controller.xcx.order.save);
+  
+  // 获取订单列表
+  router.get('/client/order', xcxcuser, controller.xcx.order.list);
+  
+  // 取消订单
+  router.post('/client/order/cancel', xcxcuser, controller.xcx.order.cancel);
 };

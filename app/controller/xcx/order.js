@@ -37,6 +37,38 @@ class OrderController extends Controller {
     ctx.body = resBody; 
   }
 
+  // 获取订单列表
+  async list () {
+    let resBody = util.resdata(200);
+    const { ctx } = this;   
+    // ctx.query.page, ctx.query.size
+    await ctx.service.order.getOrderList(ctx.query)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      ctx.logger.error(err);
+      resBody = util.resdata(503, '查询订单列表失败');
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
+
+  // 取消订单
+  async cancel () {
+    let resBody = util.resdata(200);
+    const { ctx } = this;   
+
+    await ctx.service.order.cancelOrder(ctx.request.body)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      ctx.logger.error(err);
+      resBody = util.resdata(503, '取消订单失败');
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
+
 }
 
 module.exports = OrderController;

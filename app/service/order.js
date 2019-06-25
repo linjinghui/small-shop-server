@@ -99,6 +99,41 @@ class OrderService extends Service {
       });
     });
   }
+
+  // 获取订单列表
+	async getOrderList (data) {
+    const { ctx } = this;
+    const page = data.page;
+    const size = data.size;
+    
+    return await ctx.model.Order.search(page, size, {open_id: ctx.session.user.open_id}, '-confirm_time -consignees_id -distribution_time -finish_time -open_id -time -prepare_time -__v');
+  }
+
+  // 取消订单
+	async cancelOrder (data) {
+    const { ctx } = this;
+
+    return new Promise((resolve, reject) => {
+      ctx.model.Order.searchOne({_id: data._id, open_id: ctx.session.user.open_id}).then(ret => {
+        if (ret) {
+          // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
+          if (ret.status == 5) {
+            reject('订单已在配送中，无法取消');  
+          } else {
+            ctx.model.Order.update({_id: data._id, status: 0}, ctx.session.user).then(ret => {
+              resolve('订单取消成功');
+            }, err => {
+              reject(err);
+            });
+          }
+        } else {
+          reject('未找到订单');  
+        }
+      }, err => {
+        reject(err);
+      });
+    });
+  }
   
 }
 
