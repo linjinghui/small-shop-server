@@ -53,6 +53,21 @@ class OrderController extends Controller {
     ctx.body = resBody; 
   }
 
+  // 获取订单详情
+  async info () {
+    let resBody = util.resdata(200);
+    const { ctx } = this;   
+    await ctx.service.order.getOrderInfo(ctx.params)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      ctx.logger.error(err);
+      resBody = util.resdata(503, '查询订单详情失败');
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
+
   // 取消订单
   async cancel () {
     let resBody = util.resdata(200);

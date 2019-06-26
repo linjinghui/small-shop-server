@@ -288,6 +288,69 @@ module.exports = app => {
       });
     });
   }
+  
+  // 查询单个订单 - 详细信息
+  schema.statics.searchOneById = function (id, backKey) {
+    const _this = this;
+
+    return new Promise(function (resolve, reject) {
+      _this
+        .aggregate([
+          {
+            // 关联表
+            $lookup: {
+              // 表明
+              from: "orderProduct",
+              // 本表需要关联的字段
+              localField: "_id",
+              // 被关联表需要关联的字段
+              foreignField: "order_id",
+              // 结果集别名
+              as: "order_product"
+            }
+          }, 
+          {
+             // 关联表
+             $lookup: {
+              // 表明
+              from: "address",
+              // 本表需要关联的字段
+              localField: "consignees_id",
+              // 被关联表需要关联的字段
+              foreignField: "_id",
+              // 结果集别名
+              as: "order_consignees"
+            }
+          },
+          {
+            // 查询条件
+            $match: {
+              _id: mongoose.Types.ObjectId(id)
+            }
+          }, 
+          {
+            // 指定返回字段
+            $project: backKey
+          }
+        ])
+        .exec((err, ret) => {
+          // 处理结果
+          console.log('===处理结果===');
+          console.log(JSON.stringify(ret));
+          if (ret && ret.length > 0) {
+            ret = ret[0];
+            console.log('===1===');
+            console.log(JSON.stringify(ret));
+            if (ret.order_consignees && ret.order_consignees.length > 0) {
+              ret.order_consignees = ret.order_consignees[0];
+              console.log('===2===');
+              console.log(JSON.stringify(ret));
+            }
+          } 
+          err ? reject(err) : resolve(ret);
+        });
+    });
+  }
 
   // 返回model，其中order为数据库中表的名称
   return mongoose.model('Order', schema, 'order');

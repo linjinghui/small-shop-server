@@ -70,6 +70,9 @@ module.exports = app => {
   // 获取订单列表
   router.get('/client/order', xcxcuser, controller.xcx.order.list);
   
+  // 获取订单详情
+  router.get('/client/order/:id', xcxcuser, controller.xcx.order.info);
+  
   // 取消订单
   router.post('/client/order/cancel', xcxcuser, controller.xcx.order.cancel);
   

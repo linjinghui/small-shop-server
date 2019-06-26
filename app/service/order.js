@@ -121,6 +121,26 @@ class OrderService extends Service {
     });
   }
 
+  // 获取订单详情
+	async getOrderInfo (data) {
+    const { ctx } = this;
+    
+    return await ctx.model.Order.searchOneById(data.id, {
+      order_id: 0
+      // count: 1
+      // money: 1,
+      // reason: 1,
+      // remark: 1,
+      // status: 1,
+      // time: 1,
+      // _id: 1,
+      // 'order_product.avatar': 1,
+      // 'order_product.name': 1,
+      // 'order_product.specs_name': 1,
+      // 'order_product.count': 1
+    });
+  }
+
   // 取消订单
 	async cancelOrder (data) {
     const { ctx } = this;
