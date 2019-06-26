@@ -72,4 +72,7 @@ module.exports = app => {
   
   // 取消订单
   router.post('/client/order/cancel', xcxcuser, controller.xcx.order.cancel);
+  
+  // 删除订单
+  router.post('/client/order/delete', xcxcuser, controller.xcx.order.delete);
 };

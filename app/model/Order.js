@@ -140,34 +140,33 @@ module.exports = app => {
   }
 
   // 查询订单列表
-  schema.statics.search = function (page, size, condition, backKey) {
+  schema.statics.search_bf = function (page, size, condition, backKey) {
     const _this = this;
     page = parseInt(page) || 1;
     size = parseInt(size) || 20;
 
-    if (condition) {
-      // 转换对象中的ObjectId
-      let parseObjectId = obj => {
-        if (obj._id) {
-          obj._id = mongoose.Types.ObjectId(obj._id);
-        }
-        if (obj.person_id) {
-          obj.person_id = mongoose.Types.ObjectId(obj.person_id);
-        }
-        return obj;
+    // 转换对象中的ObjectId
+    let parseObjectId = obj => {
+      if (obj._id) {
+        obj._id = mongoose.Types.ObjectId(obj._id);
       }
-
-      if (condition) {
-        condition = parseObjectId(condition);
-        (condition.$or || []).forEach(item => {
-          item = parseObjectId(item);
-        });
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
       }
-      // 去除空条件
-      for (const key in condition) {
-        !condition[key] && (delete condition[key]);
-      }
+      return obj;
     }
+
+    if (condition) {
+      condition = parseObjectId(condition);
+      (condition.$or || []).forEach(item => {
+        item = parseObjectId(item);
+      });
+    }
+    // 去除空条件
+    for (const key in condition) {
+      !condition[key] && (delete condition[key]);
+    }
+
     return new Promise(function (resolve, reject) {
       // 查询总记录数
       _this.find(condition || {}).countDocuments().exec((err, total) => {
@@ -179,6 +178,74 @@ module.exports = app => {
           .skip((page - 1) * size)
           .limit(size)
           .sort({'time': -1})
+          .exec((err, ret) => {
+            err ? reject(err) : resolve({list: ret, page: page, total: total});
+          });
+        }
+      });
+    });
+  }
+  schema.statics.search = function (page, size, condition, backKey) {
+    const _this = this;
+    page = parseInt(page) || 1;
+    size = parseInt(size) || 20;
+
+    // 转换对象中的ObjectId
+    let parseObjectId = obj => {
+      if (obj._id) {
+        obj._id = mongoose.Types.ObjectId(obj._id);
+      }
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+      }
+      return obj;
+    }
+
+    if (condition) {
+      condition = parseObjectId(condition);
+      (condition.$or || []).forEach(item => {
+        item = parseObjectId(item);
+      });
+    }
+    // 去除空条件
+    for (const key in condition) {
+      !condition[key] && (delete condition[key]);
+    }
+
+    return new Promise(function (resolve, reject) {
+      // 查询总记录数
+      _this.find(condition || {}).countDocuments().exec((err, total) => {
+        if (err) {
+          reject(err);
+        } else {
+          // 分页查询
+          _this
+          .aggregate([
+            {
+              // 关联表
+              $lookup: {
+                // 表明
+                from: "orderProduct",
+                // 本表需要关联的字段
+                localField: "_id",
+                // 被关联表需要关联的字段
+                foreignField: "order_id",
+                // 结果集别名
+                as: "order_product"
+              }
+            }, 
+            {
+              // 查询条件
+              $match: condition || {}
+            }, 
+            {
+              // 指定返回字段
+              $project: backKey
+            }
+          ])
+          .sort({'time': -1})
+          .skip((page - 1) * size)
+          .limit(size)
           .exec((err, ret) => {
             err ? reject(err) : resolve({list: ret, page: page, total: total});
           });

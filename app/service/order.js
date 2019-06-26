@@ -61,6 +61,7 @@ class OrderService extends Service {
                 count: count,
                 money: count * util.countRprice(price, rebate),
                 product_id: item._id,
+                avatar: item.avatar,
                 name: item.name,
                 price: price,
                 rebate: rebate
@@ -80,13 +81,12 @@ class OrderService extends Service {
         
 
         // == 保存订单
-        ctx.model.Order.insert({count: totalCount, money: totalMoney, consignees_id: consigneesId, open_id: ctx.session.user.open_id, remark: remark}).then(ret => {
+        ctx.model.Order.insert({count: totalCount, money: totalMoney.toFixed(2), consignees_id: consigneesId, open_id: ctx.session.user.open_id, remark: remark}).then(ret => {
           // 保存订单商品信息
           (specs).forEach(item => {
             item.order_id = ret._id;
           });
           ctx.model.OrderProduct.inserts(specs).then((rets) => {
-            console.log('==OrderProduct.inserts==', rets);
             resolve(ret);
           }, err => {
             reject(err);
@@ -106,7 +106,19 @@ class OrderService extends Service {
     const page = data.page;
     const size = data.size;
     
-    return await ctx.model.Order.search(page, size, {open_id: ctx.session.user.open_id}, '-confirm_time -consignees_id -distribution_time -finish_time -open_id -time -prepare_time -__v');
+    return await ctx.model.Order.search(page, size, {open_id: ctx.session.user.open_id}, {
+      count: 1,
+      money: 1,
+      reason: 1,
+      remark: 1,
+      status: 1,
+      time: 1,
+      _id: 1,
+      'order_product.avatar': 1,
+      'order_product.name': 1,
+      'order_product.specs_name': 1,
+      'order_product.count': 1
+    });
   }
 
   // 取消订单
@@ -132,6 +144,32 @@ class OrderService extends Service {
       }, err => {
         reject(err);
       });
+    });
+  }
+
+  // 删除订单
+  async deleteOrder (data) {
+    const { ctx } = this;
+
+    return new Promise((resolve, reject) => {
+      // 删除订单表 
+      ctx.model.Order.delete(data._id, ctx.session.user.open_id)
+      .then(ret => {
+        if (ret) {
+          // 删除订单商品表
+          return ctx.model.OrderProduct.deletes({order_id: data._id});
+        } else {
+          reject('未找到订单');  
+        }
+      }, err => {
+        reject(err);  
+      })
+      .then(ret => {
+        resolve('删除订单成功');
+      }, err => {
+        reject(err);
+      });
+
     });
   }
   

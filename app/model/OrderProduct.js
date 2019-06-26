@@ -35,6 +35,10 @@ module.exports = app => {
     "money": {
       type: Number
     },
+    // 商品图片
+    "avatar": {
+      type: String
+    },
     // 商品名称
     "name": {
       type: String
@@ -68,6 +72,8 @@ module.exports = app => {
         count: data.count || null,
         // 总价
         money: data.money || null,
+        // 商品图片
+        avatar: data.avatar || null,
         // 商品名称
         name: data.name || null,
         // 商品单价
@@ -105,6 +111,8 @@ module.exports = app => {
           count: item.count || null,
           // 总价
           money: item.money || null,
+          // 商品图片
+          avatar: item.avatar || null,
           // 商品名称
           name: item.name || null,
           // 商品单价
@@ -114,6 +122,45 @@ module.exports = app => {
         });
       });
       _this.insertMany(_arr, function (err, ret) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(ret);
+        }
+      });
+    });
+  }
+
+  // 删除多个数据
+  schema.statics.deletes = function (condition) {
+    const _this = this;
+    
+    // 转换对象中的ObjectId
+    let parseObjectId = obj => {
+      if (obj._id) {
+        obj._id = mongoose.Types.ObjectId(obj._id);
+      }
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+      }
+      if (obj.order_id) {
+        obj.order_id = mongoose.Types.ObjectId(obj.order_id);
+      }
+      if (obj.product_id) {
+        obj.product_id = mongoose.Types.ObjectId(obj.product_id);
+      }
+      return obj;
+    }
+
+    if (condition) {
+      condition = parseObjectId(condition);
+      (condition.$or || []).forEach(item => {
+        item = parseObjectId(item);
+      });
+    }
+
+    return new Promise(function (resolve, reject) {
+      _this.deleteMany(condition, function (err, ret) {
         if (err) {
           reject(err);
         } else {

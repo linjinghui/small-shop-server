@@ -69,6 +69,22 @@ class OrderController extends Controller {
     ctx.body = resBody; 
   }
 
+  // 删除订单
+  async delete () {
+    let resBody = util.resdata(200);
+    const { ctx } = this;   
+
+    await ctx.service.order.deleteOrder(ctx.request.body)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      ctx.logger.error(err);
+      resBody = util.resdata(503, '删除订单失败');
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
+
 }
 
 module.exports = OrderController;
