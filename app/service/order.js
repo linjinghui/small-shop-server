@@ -10,6 +10,8 @@ class OrderService extends Service {
     const { ctx } = this;
 
     return new Promise(function (resolve, reject) {
+      // 送达时间
+      const arriveTime = data.arriveTime;
       // 用户备注
       const remark = data.remark;
       // 配送地址
@@ -81,7 +83,7 @@ class OrderService extends Service {
         
 
         // == 保存订单
-        ctx.model.Order.insert({count: totalCount, money: totalMoney.toFixed(2), consignees_id: consigneesId, open_id: ctx.session.user.open_id, remark: remark}).then(ret => {
+        ctx.model.Order.insert({count: totalCount, money: totalMoney.toFixed(2), consignees_id: consigneesId, open_id: ctx.session.user.open_id, arriveTime: arriveTime, remark: remark}).then(ret => {
           // 保存订单商品信息
           (specs).forEach(item => {
             item.order_id = ret._id;
@@ -110,6 +112,7 @@ class OrderService extends Service {
       count: 1,
       money: 1,
       reason: 1,
+      arriveTime: 1,
       remark: 1,
       status: 1,
       time: 1,
@@ -126,18 +129,27 @@ class OrderService extends Service {
     const { ctx } = this;
     
     return await ctx.model.Order.searchOneById(data.id, {
-      order_id: 0
-      // count: 1
-      // money: 1,
-      // reason: 1,
-      // remark: 1,
-      // status: 1,
-      // time: 1,
-      // _id: 1,
-      // 'order_product.avatar': 1,
-      // 'order_product.name': 1,
-      // 'order_product.specs_name': 1,
-      // 'order_product.count': 1
+      order_id: 0,
+      confirm_time: 0,
+      consignees_id: 0,
+      distribution_time: 0,
+      finish_time: 0,
+      prepare_time: 0,
+      open_id: 0,
+      status: 0,
+      __V: 0,
+      'order_consignees.last_use_time': 0,
+      'order_consignees.open_id': 0,
+      'order_consignees.time': 0,
+      'order_consignees.update_time': 0,
+      'order_consignees.__V': 0,
+      'order_consignees._id': 0,
+      'order_product.__V': 0,
+      'order_product.__v': 0,
+      'order_product._id': 0,
+      'order_product.order_id': 0,
+      'order_product.product_id': 0,
+      'order_product.specs_id': 0
     });
   }
 

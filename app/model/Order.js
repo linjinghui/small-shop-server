@@ -27,6 +27,10 @@ module.exports = app => {
     "status": {
       type: Number
     },
+    // 送达时间
+    "arriveTime": {
+      type: String
+    },
     // 备注
     "remark": {
       type: String
@@ -72,6 +76,8 @@ module.exports = app => {
         open_id: data.open_id || null,
         // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
         status: 1,
+        // 送达时间
+        arriveTime: data.arriveTime || null,
         // 备注
         remark: data.remark || null,
         // 原因
@@ -121,6 +127,10 @@ module.exports = app => {
       if (data.consignees_id) udata.consignees_id = mongoose.Types.ObjectId(data.consignees_id);
       // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
       if (data.status || data.status === 0) udata.status = data.status;
+      // 送达时间
+      if (data.arriveTime) udata.arriveTime = data.arriveTime;
+      // 备注
+      if (data.remark) udata.remark = data.remark;
       // 原因
       if (data.reason) udata.reason = data.reason;
       // 订单确认时间
