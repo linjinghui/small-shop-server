@@ -125,6 +125,29 @@ class OrderService extends Service {
     });
   }
 
+  // 获取备货区订单列表
+	async getReserveOrderList (data) {
+    const { ctx } = this;
+    const page = data.page;
+    const size = data.size;
+    
+    return await ctx.model.Order.search(page, size, {person_id: ctx.session.user._id, $or: [{status: 2}, {status: 3}]}, {
+      count: 1,
+      money: 1,
+      reason: 1,
+      arriveTime: 1,
+      remark: 1,
+      status: 1,
+      time: 1,
+      _id: 1,
+      'order_product.specs_id': 1,
+      'order_product.avatar': 1,
+      'order_product.name': 1,
+      'order_product.specs_name': 1,
+      'order_product.count': 1
+    });
+  }
+
   // 获取订单列表 - 管理后台
 	async getOrderListByAdmin (data) {
     const { ctx } = this;

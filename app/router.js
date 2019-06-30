@@ -53,6 +53,9 @@ module.exports = app => {
   
   // 确认订单
   router.post('/admin/order/confirm', cuser, controller.admin.order.confirm);
+  
+  // 获取备货区订单列表
+  router.get('/admin/reserverorder', cuser, controller.admin.order.reserveList);
 
   // ======================[小程序]===========================
   // 登录

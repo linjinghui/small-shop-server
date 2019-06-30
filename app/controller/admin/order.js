@@ -65,6 +65,22 @@ class OrderController extends Controller {
     // 响应
     ctx.body = resBody; 
   }
+
+  // 获取备货区订单列表
+  async reserveList () {
+    const { ctx } = this;
+    let resBody = util.resdata(200);
+
+    await ctx.service.order.getReserveOrderList(ctx.query)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      resBody = util.resdata(201, err);
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
+  
 }
 
 module.exports = OrderController;
