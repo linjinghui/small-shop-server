@@ -206,7 +206,7 @@ class OrderService extends Service {
       finish_time: 0,
       prepare_time: 0,
       open_id: 0,
-      status: 0,
+      // status: 0,
       __V: 0,
       'order_consignees.last_use_time': 0,
       'order_consignees.open_id': 0,
