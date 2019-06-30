@@ -23,7 +23,11 @@ module.exports = app => {
     'open_id': {
       type: String
     },
-    // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
+    // 拥有者ID
+    'person_id': { 
+      type: mongoose.Types.ObjectId 
+    },
+    // 订单状态 0: 已删除, 1：待确认，2：待备货，3：备货中，4：待分拣，5：待配送，6：配送中，7：已完成
     "status": {
       type: Number
     },
@@ -74,7 +78,9 @@ module.exports = app => {
         consignees_id: mongoose.Types.ObjectId(data.consignees_id) || null,
         // 微信ID - 下单人
         open_id: data.open_id || null,
-        // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
+        // 拥有者
+        person_id: mongoose.Types.ObjectId(data.person_id) || null,
+        // 订单状态 0: 已删除, 1：待确认，2：待备货，3：备货中，4：待分拣，5：待配送，6：配送中，7：已完成
         status: 1,
         // 送达时间
         arriveTime: data.arriveTime || null,
@@ -114,8 +120,23 @@ module.exports = app => {
   }
 
   // 更新数据
-  schema.statics.update = function (data, user) {
+  schema.statics.update = function (condition, data) {
     const _this = this;
+    // 转换对象中的ObjectId
+    const parseObjectId = obj => {
+      if (obj._id) {
+        obj._id = mongoose.Types.ObjectId(obj._id);
+      }
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+      }
+      return obj;
+    }
+
+    if (condition) {
+      condition = parseObjectId(condition);
+    }
+    
     return new Promise(function (resolve, reject) {
       let udata = {};
 
@@ -125,7 +146,7 @@ module.exports = app => {
       if (data.money) udata.money = data.money;
       // 配送地址ID
       if (data.consignees_id) udata.consignees_id = mongoose.Types.ObjectId(data.consignees_id);
-      // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
+      // 订单状态 0: 已删除, 1：待确认，2：待备货，3：备货中，4：待分拣，5：待配送，6：配送中，7：已完成
       if (data.status || data.status === 0) udata.status = data.status;
       // 送达时间
       if (data.arriveTime) udata.arriveTime = data.arriveTime;
@@ -142,7 +163,10 @@ module.exports = app => {
       // 完成时间
       if (data.finish_time) udata.finish_time = data.finish_time;
 
-      _this.updateOne({_id: mongoose.Types.ObjectId(data._id), open_id: user.open_id}, {$set: udata})
+      console.log('====order update===');
+      console.log(JSON.stringify(data));
+      console.log(JSON.stringify(udata));
+      _this.updateOne(condition, {$set: udata})
       .exec((err, ret) => {
         err ? reject(err) : resolve(ret);
       });
@@ -150,51 +174,6 @@ module.exports = app => {
   }
 
   // 查询订单列表
-  schema.statics.search_bf = function (page, size, condition, backKey) {
-    const _this = this;
-    page = parseInt(page) || 1;
-    size = parseInt(size) || 20;
-
-    // 转换对象中的ObjectId
-    let parseObjectId = obj => {
-      if (obj._id) {
-        obj._id = mongoose.Types.ObjectId(obj._id);
-      }
-      if (obj.person_id) {
-        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
-      }
-      return obj;
-    }
-
-    if (condition) {
-      condition = parseObjectId(condition);
-      (condition.$or || []).forEach(item => {
-        item = parseObjectId(item);
-      });
-    }
-    // 去除空条件
-    for (const key in condition) {
-      !condition[key] && (delete condition[key]);
-    }
-
-    return new Promise(function (resolve, reject) {
-      // 查询总记录数
-      _this.find(condition || {}).countDocuments().exec((err, total) => {
-        if (err) {
-          reject(err);
-        } else {
-          // 分页查询
-          _this.find(condition || {}, backKey || '')
-          .skip((page - 1) * size)
-          .limit(size)
-          .sort({'time': -1})
-          .exec((err, ret) => {
-            err ? reject(err) : resolve({list: ret, page: page, total: total});
-          });
-        }
-      });
-    });
-  }
   schema.statics.search = function (page, size, condition, backKey) {
     const _this = this;
     page = parseInt(page) || 1;
@@ -257,6 +236,47 @@ module.exports = app => {
           .skip((page - 1) * size)
           .limit(size)
           .exec((err, ret) => {
+            err ? reject(err) : resolve({list: ret, page: page, total: total});
+          });
+        }
+      });
+    });
+  }
+
+  // 查询订单列表 - 不关联其他数据
+  schema.statics.searchSingle = function (page, size, condition, backKey) {
+    const _this = this;
+    page = parseInt(page) || 1;
+    size = parseInt(size) || 20;
+    // 转换对象中的ObjectId
+    let parseObjectId = obj => {
+      if (obj._id) {
+        obj._id = mongoose.Types.ObjectId(obj._id);
+      }
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+      }
+      return obj;
+    }
+
+    if (condition) {
+      condition = parseObjectId(condition);
+      (condition.$or || []).forEach(item => {
+        item = parseObjectId(item);
+      });
+      // 去除空条件
+      for (const key in condition) {
+        !condition[key] && (delete condition[key]);
+      }
+    }
+    return new Promise(function (resolve, reject) {
+      // 查询总记录数
+      _this.find(condition || {}).count().exec((err, total) => {
+        if (err) {
+          reject(err);
+        } else {
+          // 分页查询
+          _this.find(condition || {}, backKey || '').skip((page - 1) * size).limit(size).exec((err, ret) => {
             err ? reject(err) : resolve({list: ret, page: page, total: total});
           });
         }

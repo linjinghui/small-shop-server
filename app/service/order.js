@@ -83,9 +83,10 @@ class OrderService extends Service {
         
 
         // == 保存订单
-        ctx.model.Order.insert({count: totalCount, money: totalMoney.toFixed(2), consignees_id: consigneesId, open_id: ctx.session.user.open_id, arriveTime: arriveTime, remark: remark}).then(ret => {
+        ctx.model.Order.insert({count: totalCount, money: totalMoney.toFixed(2), consignees_id: consigneesId, person_id: ctx.session.user._id, open_id: ctx.session.user.open_id, arriveTime: arriveTime, remark: remark}).then(ret => {
           // 保存订单商品信息
           (specs).forEach(item => {
+            item.person_id = ctx.session.user._id;
             item.order_id = ret._id;
           });
           ctx.model.OrderProduct.inserts(specs).then((rets) => {
@@ -124,6 +125,52 @@ class OrderService extends Service {
     });
   }
 
+  // 获取订单列表 - 管理后台
+	async getOrderListByAdmin (data) {
+    const { ctx } = this;
+    const page = data.page;
+    const size = data.size;
+    let condition = {
+      person_id: ctx.session.user._id
+    };
+    let andArr = [];
+
+    // id查询
+    if (data.id) {
+      condition._id = data.id;
+    }
+    // 状态条件
+    if (data.status || data.status === 0) {
+      condition.status = data.status;
+    }
+    // 开始时间
+    if (data.startTime && parseInt(data.startTime)) {
+      andArr.push({
+        time: {'$gte': new Date(parseInt(data.startTime))}
+      });
+    }
+    // 结束时间
+    if (data.endTime && parseInt(data.endTime)) {
+      andArr.push({
+        time: {'$lt': new Date(parseInt(data.endTime))}
+      });
+    }
+    if (andArr.length > 0) {
+      condition.$and = andArr;
+    }
+
+    return await ctx.model.Order.searchSingle(page, size, condition, {
+      count: 1,
+      money: 1,
+      // reason: 1,
+      arriveTime: 1,
+      remark: 1,
+      status: 1,
+      time: 1,
+      _id: 1
+    });
+  }
+
   // 获取订单详情
 	async getOrderInfo (data) {
     const { ctx } = this;
@@ -146,8 +193,9 @@ class OrderService extends Service {
       'order_consignees._id': 0,
       'order_product.__V': 0,
       'order_product.__v': 0,
-      'order_product._id': 0,
-      'order_product.order_id': 0,
+      // 'order_product._id': 0,
+      // 'order_product.order_id': 0,
+      'order_product.person_id': 0,
       'order_product.product_id': 0,
       'order_product.specs_id': 0
     });
@@ -160,11 +208,11 @@ class OrderService extends Service {
     return new Promise((resolve, reject) => {
       ctx.model.Order.searchOne({_id: data._id, open_id: ctx.session.user.open_id}).then(ret => {
         if (ret) {
-          // 订单状态 0: 已删除, 1：待确认，2：待备货，3：待分拣，4：待配送，5：配送中，6：已完成
+          // 订单状态 0: 已删除, 1：待确认，2：待备货，3：备货中，4：待分拣，5：待配送，6：配送中，7：已完成
           if (ret.status == 5) {
             reject('订单已在配送中，无法取消');  
           } else {
-            ctx.model.Order.update({_id: data._id, status: 0}, ctx.session.user).then(ret => {
+            ctx.model.Order.update({_id: data._id, open_id: ctx.session.user.open_id}, {status: 0}).then(ret => {
               resolve('订单取消成功');
             }, err => {
               reject(err);
@@ -203,6 +251,54 @@ class OrderService extends Service {
       });
 
     });
+  }
+
+  // 更新订单商品重量、价格
+  async updateOrderProduct (data) {
+    const { ctx } = this;
+    console.log(JSON.stringify(data));
+
+    // data._id - 订单商品ID
+    // data.order_id - 订单ID
+    // data.weight
+    // data.money
+    // 获取订单信息
+
+    return new Promise((resolve, reject) => {
+      let totalMoney = 0;
+      // ret => {}, err => {}
+
+      // 1-更新指定订单商品
+      ctx.model.OrderProduct.update({_id: data._id, person_id: ctx.session.user._id}, data)
+      .then(ret => {
+        return ctx.model.OrderProduct.search({order_id: data.order_id, person_id: ctx.session.user._id}, data);
+      }, err => {
+        reject('更新订单商品失败');
+      })
+      // 2-统计该订单下所有商品的总价
+      .then(ret => {
+        ret.forEach(item => {
+          totalMoney += item.money;
+        });
+        return ctx.model.Order.update({_id: data.order_id, person_id: ctx.session.user._id}, {money: totalMoney});
+      }, err => {
+        reject('更新订单商品失败');
+      })
+      // 3-更新订单总金额
+      .then(ret => {
+        resolve('更新成功');
+      }, err => {
+        reject('更新订单商品失败');
+      });
+
+    });
+  }
+
+  // 设置订单状态
+	async setOrderStatus (id, status) {
+    const { ctx } = this;
+
+    return ctx.model.Order.update({_id: id, person_id: ctx.session.user._id}, {status: status});
   }
   
 }

@@ -42,6 +42,18 @@ module.exports = app => {
   // 商品推荐
   router.post('/admin/product/recommend', cuser, controller.admin.product.recommend);
 
+  // 获取订单列表
+  router.get('/admin/order', cuser, controller.admin.order.list);
+  
+  // 获取订单详情
+  router.get('/admin/order/:id', cuser, controller.admin.order.info);
+  
+  // 更新订单商品重量、价格
+  router.post('/admin/order/update', cuser, controller.admin.order.update);
+  
+  // 确认订单
+  router.post('/admin/order/confirm', cuser, controller.admin.order.confirm);
+
   // ======================[小程序]===========================
   // 登录
   router.post('/client/login', controller.login.xcxsignin);

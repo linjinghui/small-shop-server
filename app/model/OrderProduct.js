@@ -15,6 +15,10 @@ module.exports = app => {
     "product_id": {
       type: mongoose.Types.ObjectId
     },
+    // 拥有者ID
+    'person_id': { 
+      type: mongoose.Types.ObjectId 
+    },
     // 规格ID
     "specs_id": {
       type: String
@@ -29,6 +33,10 @@ module.exports = app => {
     },
     // 数量
     "count": {
+      type: Number
+    },
+    // 实称重量
+    "weight": {
       type: Number
     },
     // 总价
@@ -70,6 +78,8 @@ module.exports = app => {
         rprice: data.rprice || null,
         // 数量
         count: data.count || null,
+        // 实称重量
+        weight: data.weight || null,
         // 总价
         money: data.money || null,
         // 商品图片
@@ -101,6 +111,8 @@ module.exports = app => {
           order_id: mongoose.Types.ObjectId(item.order_id) || null,
           // 商品ID
           product_id: mongoose.Types.ObjectId(item.product_id) || null,
+          // 拥有者ID
+          person_id: mongoose.Types.ObjectId(item.person_id) || null,
           // 规格ID
           specs_id: item.specs_id || null,
           // 规格名称
@@ -109,6 +121,8 @@ module.exports = app => {
           rprice: item.rprice || null,
           // 数量
           count: item.count || null,
+          // 实称重量
+          weight: item.weight || null,
           // 总价
           money: item.money || null,
           // 商品图片
@@ -169,6 +183,58 @@ module.exports = app => {
       });
     });
   }
+
+  // 更新数据
+  schema.statics.update = function (condition, data) {
+    const _this = this;
+    // 转换对象中的ObjectId
+    const parseObjectId = obj => {
+      if (obj._id) {
+        obj._id = mongoose.Types.ObjectId(obj._id);
+      }
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+      }
+      if (obj.order_id) {
+        obj.order_id = mongoose.Types.ObjectId(obj.order_id);
+      }
+      if (obj.product_id) {
+        obj.product_id = mongoose.Types.ObjectId(obj.product_id);
+      }
+      return obj;
+    }
+
+    if (condition) {
+      condition = parseObjectId(condition);
+    }
+
+    return new Promise(function (resolve, reject) {
+      let udata = {};
+
+      // 商品数量
+      if (data.count) udata.count = data.count;
+      // 实称重量
+      if (data.weight) udata.weight = data.weight;
+      // 总价
+      if (data.money) udata.money = data.money;
+
+      _this.updateOne(condition, {$set: udata})
+      .exec((err, ret) => {
+        err ? reject(err) : resolve(ret);
+      });
+    });
+  }
+
+// 搜索数据
+schema.statics.search = function (condition, backKey) {
+  const _this = this;
+  
+  return new Promise(function (resolve, reject) {
+    _this.find(condition || {}, backKey).exec((err, ret) => {
+      err ? reject(err) : resolve(ret);
+    });
+  });
+}  
 
   // 返回model，其中 orderProduct 为数据库中表的名称
   return mongoose.model('OrderProduct', schema, 'orderProduct');
