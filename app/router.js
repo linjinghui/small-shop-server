@@ -57,6 +57,12 @@ module.exports = app => {
   // 获取备货区订单列表
   router.get('/admin/reserverorder', cuser, controller.admin.order.reserveList);
 
+  // 设置订单状态为备货中
+  router.post('/admin/order/setRersevering', cuser, controller.admin.order.rersevering);
+
+  // 设置订单状态为备货完成
+  router.post('/admin/order/setRersevered', cuser, controller.admin.order.rersevered);
+  
   // ======================[小程序]===========================
   // 登录
   router.post('/client/login', controller.login.xcxsignin);

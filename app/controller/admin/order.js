@@ -80,6 +80,36 @@ class OrderController extends Controller {
     // 响应
     ctx.body = resBody; 
   }
+
+  // 设置订单状态为备货中
+  async rersevering () {
+    const { ctx } = this;
+    let resBody = util.resdata(200);
+
+    await ctx.service.order.setOrderStatus(ctx.request.body.order_ids, 3)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      resBody = util.resdata(201, err);
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
+
+  // 设置订单状态为备货完成
+  async rersevered () {
+    const { ctx } = this;
+    let resBody = util.resdata(200);
+
+    await ctx.service.order.setOrderStatus(ctx.request.body.order_ids, 4)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      resBody = util.resdata(201, err);
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
   
 }
 

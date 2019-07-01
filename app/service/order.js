@@ -321,7 +321,11 @@ class OrderService extends Service {
 	async setOrderStatus (id, status) {
     const { ctx } = this;
 
-    return ctx.model.Order.update({_id: id, person_id: ctx.session.user._id}, {status: status});
+    if (id instanceof Array) {
+      return ctx.model.Order.updates({_id: {$in: id}, person_id: ctx.session.user._id}, {status: status});
+    } else {
+      return ctx.model.Order.update({_id: id, person_id: ctx.session.user._id}, {status: status});
+    }
   }
   
 }

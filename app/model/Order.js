@@ -173,6 +173,60 @@ module.exports = app => {
     });
   }
 
+  // 更新数据
+  schema.statics.updates = function (condition, data) {
+    const _this = this;
+    // 转换对象中的ObjectId
+    const parseObjectId = obj => {
+      if (obj._id) {
+        // obj._id = mongoose.Types.ObjectId(obj._id);
+        obj._id.$in.forEach(item => {
+          item = mongoose.Types.ObjectId(item);
+        });
+      }
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+      }
+      return obj;
+    }
+
+    if (condition) {
+      condition = parseObjectId(condition);
+    }
+    
+    return new Promise(function (resolve, reject) {
+      let udata = {};
+
+      // 商品总数量
+      if (data.count) udata.count = data.count;
+      // 商品总价
+      if (data.money) udata.money = data.money;
+      // 配送地址ID
+      if (data.consignees_id) udata.consignees_id = mongoose.Types.ObjectId(data.consignees_id);
+      // 订单状态 0: 已删除, 1：待确认，2：待备货，3：备货中，4：待分拣，5：待配送，6：配送中，7：已完成
+      if (data.status || data.status === 0) udata.status = data.status;
+      // 送达时间
+      if (data.arriveTime) udata.arriveTime = data.arriveTime;
+      // 备注
+      if (data.remark) udata.remark = data.remark;
+      // 原因
+      if (data.reason) udata.reason = data.reason;
+      // 订单确认时间
+      if (data.confirm_time) udata.confirm_time = data.confirm_time;
+      // 备货时间
+      if (data.prepare_time) udata.prepare_time = data.prepare_time;
+      // 配送时间
+      if (data.distribution_time) udata.distribution_time = data.distribution_time;
+      // 完成时间
+      if (data.finish_time) udata.finish_time = data.finish_time;
+
+      _this.updateMany(condition, {$set: udata})
+      .exec((err, ret) => {
+        err ? reject(err) : resolve(ret);
+      });
+    });
+  }
+
   // 查询订单列表
   schema.statics.search = function (page, size, condition, backKey) {
     const _this = this;
