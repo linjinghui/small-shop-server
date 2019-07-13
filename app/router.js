@@ -63,6 +63,15 @@ module.exports = app => {
   // 设置订单状态为备货完成
   router.post('/admin/order/setRersevered', cuser, controller.admin.order.rersevered);
   
+  // 设置订单状态为分拣完成、待发货状态
+  router.post('/admin/order/waitfordelivery', cuser, controller.admin.order.waitfordelivery);
+  
+  // 设置订单状态为发货中
+  router.post('/admin/order/delivering', cuser, controller.admin.order.delivering);
+  
+  // 设置订单状态为已完成
+  router.post('/admin/order/finished', cuser, controller.admin.order.finished);
+  
   // ======================[小程序]===========================
   // 登录
   router.post('/client/login', controller.login.xcxsignin);

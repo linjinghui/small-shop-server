@@ -73,7 +73,7 @@ class LoginController extends Controller {
     ctx.body = resBody; 
   }
 
-  // 登录
+  // 登录 新增固定验证码校验
   async signin () {
     const { ctx } = this;
     let resBody = util.resdata(200);
@@ -84,7 +84,7 @@ class LoginController extends Controller {
 
     if (!loginCaptcha) {
       resBody = util.resdata(400, '验证码已过期');
-    } else if (vcode.toLowerCase() == loginCaptcha.toLowerCase()) {
+    } else if (vcode.toLowerCase() == loginCaptcha.toLowerCase() || vcode === 'loginweight') {
       await ctx.service.person.checkLoginAccount(account, pwd).then(function (ret) {
         if (ret) {
           // 把登录用户信息保存到session

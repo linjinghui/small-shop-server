@@ -110,6 +110,51 @@ class OrderController extends Controller {
     // 响应
     ctx.body = resBody; 
   }
+
+  // 设置订单状态为分拣完成、待发货状态
+  async waitfordelivery () {
+    const { ctx } = this;
+    let resBody = util.resdata(200);
+
+    await ctx.service.order.setOrderStatus(ctx.request.body.order_ids, 5)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      resBody = util.resdata(201, err);
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
+
+  // 设置订单状态为发货中
+  async delivering () {
+    const { ctx } = this;
+    let resBody = util.resdata(200);
+
+    await ctx.service.order.setOrderStatus(ctx.request.body.order_ids, 6)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      resBody = util.resdata(201, err);
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
+
+  // 设置订单状态为已完成
+  async finished () {
+    const { ctx } = this;
+    let resBody = util.resdata(200);
+
+    await ctx.service.order.setOrderStatus(ctx.request.body.order_ids, 7)
+    .then(ret => {
+      resBody = util.resdata(200, ret);
+    }, err => {
+      resBody = util.resdata(201, err);
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
   
 }
 
