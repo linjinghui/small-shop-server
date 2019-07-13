@@ -14,7 +14,7 @@ module.exports = options => {
             token = base64.decode(token).split('S4-L');
             if (token.length === 2) {
                 ctx.session.user = {open_id: token[0], _id: token[1]};
-                ctx.session.maxAge = 1000 * 60 * 10;
+                ctx.session.maxAge = 1000 * 60 * 60;
                 // console.log('====1=' + JSON.stringify(ctx.session.user));
                 await next();
             } else {
