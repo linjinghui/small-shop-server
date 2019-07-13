@@ -29,6 +29,7 @@ class ProductController extends Controller {
     const { ctx } = this;  
     let resBody = util.resdata(200);
 
+    delete ctx.query.t;
     await ctx.service.product.getProductList(ctx.query)
     .then(ret => {
       resBody = util.resdata(200, ret);
