@@ -7,6 +7,10 @@ module.exports = app => {
   const mongoose = app.mongoose;
   const Schema = mongoose.Schema;
   let schema = new Schema({
+    '_id': {
+      type: String,
+      default: 1
+    },
     // 商品总数量
     'count': {
       type: Number
@@ -68,42 +72,48 @@ module.exports = app => {
   // 新增数据
   schema.statics.insert = function (data) {
     const _this = this;
+
     return new Promise(function (resolve, reject) {
-      _this.create({
-        // 商品总数量
-        count: data.count || null,
-        // 商品总价
-        money: data.money || null,
-        // 配送地址ID 
-        consignees_id: mongoose.Types.ObjectId(data.consignees_id) || null,
-        // 微信ID - 下单人
-        open_id: data.open_id || null,
-        // 拥有者
-        person_id: mongoose.Types.ObjectId(data.person_id) || null,
-        // 订单状态 0: 已删除, 1：待确认，2：待备货，3：备货中，4：待分拣，5：待配送，6：配送中，7：已完成
-        status: 1,
-        // 送达时间
-        arriveTime: data.arriveTime || null,
-        // 备注
-        remark: data.remark || null,
-        // 原因
-        reason: data.reason || null,
-        // 下单时间
-        time: Date.now(),
-        // 订单确认时间
-        confirm_time: null,
-        // 备货时间
-        prepare_time: null,
-        // 配送时间
-        distribution_time: null,
-        // 完成时间
-        finish_time: null
-      }, function (err, ret) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(ret);
-        }
+      _this.find().sort({'time': -1}).exec((err, ret) => {
+        let _id = (ret && ret[0] && ret[0]._id) || 0;
+        
+        _this.create({
+          _id: _id + 1,
+          // 商品总数量
+          count: data.count || null,
+          // 商品总价
+          money: data.money || null,
+          // 配送地址ID 
+          consignees_id: mongoose.Types.ObjectId(data.consignees_id) || null,
+          // 微信ID - 下单人
+          open_id: data.open_id || null,
+          // 拥有者
+          person_id: mongoose.Types.ObjectId(data.person_id) || null,
+          // 订单状态 0: 已删除, 1：待确认，2：待备货，3：备货中，4：待分拣，5：待配送，6：配送中，7：已完成
+          status: 1,
+          // 送达时间
+          arriveTime: data.arriveTime || null,
+          // 备注
+          remark: data.remark || null,
+          // 原因
+          reason: data.reason || null,
+          // 下单时间
+          time: Date.now(),
+          // 订单确认时间
+          confirm_time: null,
+          // 备货时间
+          prepare_time: null,
+          // 配送时间
+          distribution_time: null,
+          // 完成时间
+          finish_time: null
+        }, function (err, ret) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(ret);
+          }
+        });
       });
     });
   }
@@ -112,7 +122,7 @@ module.exports = app => {
   schema.statics.delete = function (id, open_id) {
     const _this = this;
     return new Promise(function (resolve, reject) {
-      _this.deleteOne({_id: mongoose.Types.ObjectId(id), open_id: open_id})
+      _this.deleteOne({_id: id, open_id: open_id})
       .exec((err, ret) => {
         err ? reject(err) : resolve(ret);
       });
@@ -125,7 +135,7 @@ module.exports = app => {
     // 转换对象中的ObjectId
     const parseObjectId = obj => {
       if (obj._id) {
-        obj._id = mongoose.Types.ObjectId(obj._id);
+        obj._id = obj._id;
       }
       if (obj.person_id) {
         obj.person_id = mongoose.Types.ObjectId(obj.person_id);
@@ -236,7 +246,7 @@ module.exports = app => {
     // 转换对象中的ObjectId
     let parseObjectId = obj => {
       if (obj._id) {
-        obj._id = mongoose.Types.ObjectId(obj._id);
+        obj._id = obj._id;
       }
       if (obj.person_id) {
         obj.person_id = mongoose.Types.ObjectId(obj.person_id);
@@ -305,7 +315,7 @@ module.exports = app => {
     // 转换对象中的ObjectId
     let parseObjectId = obj => {
       if (obj._id) {
-        obj._id = mongoose.Types.ObjectId(obj._id);
+        obj._id = obj._id;
       }
       if (obj.person_id) {
         obj.person_id = mongoose.Types.ObjectId(obj.person_id);
@@ -346,7 +356,7 @@ module.exports = app => {
       // 转换对象中的ObjectId
       let parseObjectId = obj => {
         if (obj._id) {
-          obj._id = mongoose.Types.ObjectId(obj._id);
+          obj._id = obj._id;
         }
         if (obj.person_id) {
           obj.person_id = mongoose.Types.ObjectId(obj.person_id);
@@ -409,7 +419,7 @@ module.exports = app => {
           {
             // 查询条件
             $match: {
-              _id: mongoose.Types.ObjectId(id)
+              _id: id
             }
           }, 
           {

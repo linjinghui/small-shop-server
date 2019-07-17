@@ -9,7 +9,7 @@ module.exports = app => {
   let schema = new Schema({
     // 订单ID
     "order_id": {
-      type: mongoose.Types.ObjectId
+      type: String
     },
     // 商品ID
     "product_id": {
@@ -67,7 +67,7 @@ module.exports = app => {
     return new Promise(function (resolve, reject) {
       _this.create({
         // 订单ID
-        order_id: mongoose.Types.ObjectId(item.order_id) || null,
+        order_id: item.order_id || null,
         // 商品ID
         product_id: mongoose.Types.ObjectId(data.product_id) || null,
         // 规格ID
@@ -108,7 +108,7 @@ module.exports = app => {
       array.forEach(item => {
         _arr.push({
           // 订单ID
-          order_id: mongoose.Types.ObjectId(item.order_id) || null,
+          order_id: item.order_id || null,
           // 商品ID
           product_id: mongoose.Types.ObjectId(item.product_id) || null,
           // 拥有者ID
@@ -158,7 +158,7 @@ module.exports = app => {
         obj.person_id = mongoose.Types.ObjectId(obj.person_id);
       }
       if (obj.order_id) {
-        obj.order_id = mongoose.Types.ObjectId(obj.order_id);
+        obj.order_id = obj.order_id;
       }
       if (obj.product_id) {
         obj.product_id = mongoose.Types.ObjectId(obj.product_id);
@@ -196,7 +196,7 @@ module.exports = app => {
         obj.person_id = mongoose.Types.ObjectId(obj.person_id);
       }
       if (obj.order_id) {
-        obj.order_id = mongoose.Types.ObjectId(obj.order_id);
+        obj.order_id = obj.order_id;
       }
       if (obj.product_id) {
         obj.product_id = mongoose.Types.ObjectId(obj.product_id);
