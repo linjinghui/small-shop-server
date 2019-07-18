@@ -189,9 +189,9 @@ module.exports = app => {
     // 转换对象中的ObjectId
     const parseObjectId = obj => {
       if (obj._id) {
-        // obj._id = mongoose.Types.ObjectId(obj._id);
+        // obj._id = obj._id;
         obj._id.$in.forEach(item => {
-          item = mongoose.Types.ObjectId(item);
+          item = item;
         });
       }
       if (obj.person_id) {
