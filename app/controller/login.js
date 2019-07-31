@@ -135,8 +135,10 @@ class LoginController extends Controller {
           method: 'GET', 
           dataType: 'json', 
           data: {
-            appid: ret.appId || 'wx32656ba9761508f9',
-            secret: ret.secret || 'd4988bea3e812069d09bf0f6a820f8b0',
+            // appid: ret.appId || 'wx32656ba9761508f9',
+            // secret: ret.secret || 'd4988bea3e812069d09bf0f6a820f8b0',
+            appid: ret.appId || 'wx65672d6decafe72a',
+            secret: ret.secret || 'b0bbcc5a198f60b51946ae9bc778f041',
             js_code: code,
             grant_type: 'authorization_code'
           }
