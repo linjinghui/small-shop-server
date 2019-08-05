@@ -74,11 +74,9 @@ module.exports = app => {
     const _this = this;
 
     return new Promise(function (resolve, reject) {
-      _this.find().sort({'time': -1}).exec((err, ret) => {
-        let _id = (ret && ret[0] && ret[0]._id) || 0;
-        
+      // _this.find().sort({'time': -1}).exec((err, ret) => {
         _this.create({
-          _id: _id + 1,
+          _id: getOrderId(),
           // 商品总数量
           count: data.count || null,
           // 商品总价
@@ -114,7 +112,7 @@ module.exports = app => {
             resolve(ret);
           }
         });
-      });
+      // });
     });
   }
 
@@ -308,7 +306,7 @@ module.exports = app => {
   }
 
   // 查询订单列表 - 不关联其他数据
-  schema.statics.searchSingle = function (page, size, condition, backKey) {
+  schema.statics.searchSingle_bf = function (page, size, condition, backKey) {
     const _this = this;
     page = parseInt(page) || 1;
     size = parseInt(size) || 20;
@@ -341,6 +339,74 @@ module.exports = app => {
         } else {
           // 分页查询
           _this.find(condition || {}, backKey || '').skip((page - 1) * size).limit(size).exec((err, ret) => {
+            err ? reject(err) : resolve({list: ret, page: page, total: total});
+          });
+        }
+      });
+    });
+  }
+  schema.statics.searchSingle = function (page, size, condition, backKey) {
+    const _this = this;
+    page = parseInt(page) || 1;
+    size = parseInt(size) || 20;
+
+    // 转换对象中的ObjectId
+    let parseObjectId = obj => {
+      if (obj._id) {
+        obj._id = obj._id;
+      }
+      if (obj.person_id) {
+        obj.person_id = mongoose.Types.ObjectId(obj.person_id);
+      }
+      return obj;
+    }
+
+    if (condition) {
+      condition = parseObjectId(condition);
+      (condition.$or || []).forEach(item => {
+        item = parseObjectId(item);
+      });
+    }
+    // 去除空条件
+    for (const key in condition) {
+      !condition[key] && (delete condition[key]);
+    }
+
+    return new Promise(function (resolve, reject) {
+      // 查询总记录数
+      _this.find(condition || {}).countDocuments().exec((err, total) => {
+        console.log('====total==', total);
+        if (err) {
+          reject(err);
+        } else {
+          // 分页查询
+          _this
+          .aggregate([
+            {
+              // 关联表
+              $lookup: {
+                // 表明
+                from: "address",
+                // 本表需要关联的字段
+                localField: "consignees_id",
+                // 被关联表需要关联的字段
+                foreignField: "_id",
+                // 结果集别名
+                as: "order_consignees"
+              }
+            }, 
+            {
+              // 查询条件
+              $match: condition || {}
+            }, 
+            {
+              // 指定返回字段
+              $project: backKey
+            }
+          ])
+          .skip((page - 1) * size)
+          .limit(size)
+          .exec((err, ret) => {
             err ? reject(err) : resolve({list: ret, page: page, total: total});
           });
         }
@@ -444,6 +510,56 @@ module.exports = app => {
           err ? reject(err) : resolve(ret);
         });
     });
+  }
+
+  // 获取订单id
+  // 订单号 组成方式：年(2)+月(2)+日(2)+时(2)+分(2)+秒(2)+微秒(2)+随机码(2)+流水号(3)+随机码(3) 括号里 代表编码位数
+  function getOrderId () {
+    let d = new Date();
+    let dts = d.getTime() + '';
+    let dataFormat = function (date, fmt) {
+      if (!date || (date + '' === 'Invalid Date') || !fmt) {
+        return "";
+      }
+      var o = {
+        "M+": date.getMonth() + 1, //月份
+        "d+": date.getDate(), //日
+        "h+": date.getHours(), //小时
+        "m+": date.getMinutes(), //分
+        "s+": date.getSeconds(), //秒
+        "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+        "S": date.getMilliseconds() //毫秒
+      };
+    
+      if (/(y+)/.test(fmt)) {
+        fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+      }
+    
+      for (var k in o) {
+        if (new RegExp("(" + k + ")").test(fmt)) {
+          fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        }
+      }
+      return fmt;
+    }
+    let parseLsh = function () {
+      app.lsh += 1;
+      let lsh = app.lsh;
+      if (lsh < 10) {
+        lsh = '00' + lsh;
+      } else if (lsh < 100) {
+        lsh = '0' + lsh;
+      }
+      return lsh;
+    }
+    let randomn = function (n) {
+      if (n > 21) return null
+      var re = new RegExp("(\\d{" + n + "})(\\.|$)")
+      var num = (Array(n-1).join(0) + Math.pow(10,n) * Math.random()).match(re)[1]
+      return num;
+    }
+
+    return dataFormat(d, 'yyMMddhhmmss') + (dts.substr(dts.length - 2, 2)) + randomn(2) + parseLsh() + randomn(2)
   }
 
   // 返回model，其中order为数据库中表的名称

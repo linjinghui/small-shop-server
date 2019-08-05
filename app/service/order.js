@@ -164,7 +164,7 @@ class OrderService extends Service {
     }
     // 状态条件
     if (data.status || data.status === 0) {
-      condition.status = data.status;
+      condition.status = parseInt(data.status);
     }
     // 开始时间
     if (data.startTime && parseInt(data.startTime)) {
@@ -190,7 +190,11 @@ class OrderService extends Service {
       remark: 1,
       status: 1,
       time: 1,
-      _id: 1
+      _id: 1,
+      'order_consignees.name': 1,
+      'order_consignees.mobile': 1,
+      'order_consignees.address': 1,
+      'order_consignees.door_address': 1
     });
   }
 
