@@ -121,7 +121,8 @@ class OrderService extends Service {
       'order_product.avatar': 1,
       'order_product.name': 1,
       'order_product.specs_name': 1,
-      'order_product.count': 1
+      'order_product.count': 1,
+      'order_product.weight': 1
     });
   }
 
