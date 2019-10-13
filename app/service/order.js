@@ -166,6 +166,10 @@ class OrderService extends Service {
     // 状态条件
     if (data.status || data.status === 0) {
       condition.status = parseInt(data.status);
+    } else {
+      andArr.push({
+        status: {'$ne': 0}
+      });
     }
     // 开始时间
     if (data.startTime && parseInt(data.startTime)) {
