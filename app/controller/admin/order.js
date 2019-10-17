@@ -65,6 +65,21 @@ class OrderController extends Controller {
     // 响应
     ctx.body = resBody; 
   }
+  
+  // 删除订单
+  async delete () {
+    const { ctx } = this;
+    let resBody = util.resdata(200);
+
+    await ctx.service.order.setOrderStatus(ctx.request.body._id, 0)
+    .then(ret => {
+      resBody = util.resdata(200, '订单删除成功');
+    }, err => {
+      resBody = util.resdata(201, err);
+    });
+    // 响应
+    ctx.body = resBody; 
+  }
 
   // 获取备货区订单列表
   async reserveList () {

@@ -560,7 +560,8 @@ module.exports = app => {
       return num;
     }
 
-    return dataFormat(d, 'yyMMddhhmmss') + (dts.substr(dts.length - 2, 2)) + randomn(2) + parseLsh() + randomn(2)
+    // return dataFormat(d, 'yyMMddhhmmss') + (dts.substr(dts.length - 2, 2)) + randomn(2) + parseLsh() + randomn(2)
+    return dataFormat(d, 'yyMMddhhmmss') + randomn(1) + parseLsh() + randomn(2)
   }
 
   // 返回model，其中order为数据库中表的名称
