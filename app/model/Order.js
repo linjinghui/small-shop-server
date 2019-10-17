@@ -404,6 +404,7 @@ module.exports = app => {
               $project: backKey
             }
           ])
+          .sort({'time': -1})
           .skip((page - 1) * size)
           .limit(size)
           .exec((err, ret) => {
