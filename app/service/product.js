@@ -35,7 +35,8 @@ class ProductService extends Service {
     const { ctx } = this;
     // 设置拥有者ID、状态为已上线
     const data = {
-      person_id: ctx.session.user._id,
+      // person_id: ctx.session.user._id,
+      person_id: '5d036c8874c56aa8280dbfbb',
       status: 1
     };
     

@@ -80,7 +80,8 @@ module.exports = app => {
   router.post('/client/login', controller.login.xcxsignin);
 
   // 商品列表
-  router.get('/client/product', xcxcuser, controller.xcx.product.list);
+  // router.get('/client/product', xcxcuser, controller.xcx.product.list);
+  router.get('/client/product', controller.xcx.product.list);
   
   // 商品详情
   router.get('/client/product/:id', xcxcuser, controller.xcx.product.info);
